@@ -45,6 +45,27 @@ class Kirago {
             ],
         };
     }
+    async execute() {
+        const items = this.getInputData();
+        const returnData = [];
+        const credentials = (await this.getCredentials('kiragoApi'));
+        const baseURL = credentials.baseUrl.endsWith('/') ? credentials.baseUrl : `${credentials.baseUrl}/`;
+        for (let i = 0; i < items.length; i++) {
+            const phone = this.getNodeParameter('phone', i);
+            const bodyText = this.getNodeParameter('body', i);
+            const linkPreview = this.getNodeParameter('linkPreview', i);
+            const payload = { Phone: phone, Body: bodyText, LinkPreview: linkPreview };
+            const response = await this.helpers.httpRequestWithAuthentication.call(this, 'kiragoApi', {
+                method: 'POST',
+                url: '/chat/send/text',
+                baseURL,
+                body: payload,
+                json: true,
+            });
+            returnData.push({ json: response });
+        }
+        return [returnData];
+    }
 }
 exports.Kirago = Kirago;
 //# sourceMappingURL=Kirago.node.js.map
