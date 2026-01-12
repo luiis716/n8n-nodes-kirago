@@ -24,7 +24,7 @@ exports.messageDescription = [
                     request: {
                         method: 'POST',
                         url: '/chat/send/text',
-                        body: '={{ { Phone: $parameter.phone, Body: $parameter.body, LinkPreview: $parameter.linkPreview, ...( $parameter.id ? { Id: $parameter.id } : {} ), ...( $parameter.quotedText ? { QuotedText: $parameter.quotedText } : {} ), ...( $parameter.stanzaId || $parameter.participant || $parameter.isForwarded || $parameter.mentionedJid ? { ContextInfo: { ...( $parameter.stanzaId ? { StanzaId: $parameter.stanzaId } : {} ), ...( $parameter.participant ? { Participant: $parameter.participant } : {} ), ...( $parameter.isForwarded ? { IsForwarded: true } : {} ), ...( $parameter.mentionedJid ? { MentionedJID: $parameter.mentionedJid.split(/[\n,]+/).map(s => s.trim()).filter(Boolean) } : {} ), }, } : {} ), } }}',
+                        body: '={{ (() => { const context = {}; if ($parameter.stanzaId) context.StanzaId = $parameter.stanzaId; if ($parameter.participant) context.Participant = $parameter.participant; if ($parameter.isForwarded) context.IsForwarded = true; const mentioned = ($parameter.mentionedJid || "").split(/[\n,]+/).map(s => s.trim()).filter(Boolean); if (mentioned.length) context.MentionedJID = mentioned; const payload = { Phone: $parameter.phone, Body: $parameter.body, LinkPreview: $parameter.linkPreview }; if ($parameter.id) payload.Id = $parameter.id; if ($parameter.quotedText) payload.QuotedText = $parameter.quotedText; if (Object.keys(context).length) payload.ContextInfo = context; return payload; })() }}',
                     },
                 },
             },
