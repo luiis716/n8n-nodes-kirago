@@ -83,7 +83,7 @@ export class Kirago implements INodeType {
 				if (extra.quotedText) payload.QuotedText = extra.quotedText;
 				if (Object.keys(context).length) payload.ContextInfo = context;
 
-				const response = await (this.helpers as any).httpRequestWithAuthentication.call(this, 'kiragoApi', {
+				const response = await this.helpers.httpRequestWithAuthentication.call(this, 'kiragoApi', {
 					method: 'POST',
 					url: '/chat/send/text',
 					baseURL,
@@ -118,7 +118,7 @@ export class Kirago implements INodeType {
 				if (extra.id) payload.Id = extra.id;
 				if (Object.keys(context).length) payload.ContextInfo = context;
 
-				const response = await (this.helpers as any).httpRequestWithAuthentication.call(this, 'kiragoApi', {
+				const response = await this.helpers.httpRequestWithAuthentication.call(this, 'kiragoApi', {
 					method: 'POST',
 					url: '/chat/send/image',
 					baseURL,
