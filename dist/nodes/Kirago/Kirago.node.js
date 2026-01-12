@@ -22,7 +22,7 @@ class Kirago {
             outputs: [n8n_workflow_1.NodeConnectionTypes.Main],
             credentials: [{ name: 'kiragoApi', required: true }],
             requestDefaults: {
-                baseURL: 'https://kirago.com.br/',
+                baseURL: '={{$credentials.baseUrl}}',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',

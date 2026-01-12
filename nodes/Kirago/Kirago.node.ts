@@ -19,7 +19,7 @@ export class Kirago implements INodeType {
 		outputs: [NodeConnectionTypes.Main],
 		credentials: [{ name: 'kiragoApi', required: true }],
 		requestDefaults: {
-			baseURL: 'https://kirago.com.br/',
+			baseURL: '={{$credentials.baseUrl}}',
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',

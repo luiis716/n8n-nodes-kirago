@@ -9,6 +9,13 @@ class KiragoApi {
         this.documentationUrl = 'https://github.com/org/-kirago?tab=readme-ov-file#credentials';
         this.properties = [
             {
+                displayName: 'Base URL',
+                name: 'baseUrl',
+                type: 'string',
+                default: 'https://kirago.com.br/',
+                required: true,
+            },
+            {
                 displayName: 'API Key',
                 name: 'apiKey',
                 type: 'string',
@@ -21,14 +28,19 @@ class KiragoApi {
             type: 'generic',
             properties: {
                 headers: {
-                    'x-api-key': '={{$credentials.apiKey}}',
+                    token: '={{$credentials.apiKey}}',
                 },
             },
         };
         this.test = {
             request: {
-                baseURL: 'https://kirago.com.br/',
-                url: '/v1/user',
+                baseURL: '={{$credentials.baseUrl}}',
+                url: '/health',
+                method: 'GET',
+                headers: {
+                    accept: 'application/json',
+                    token: '={{$credentials.apiKey}}',
+                },
             },
         };
     }
