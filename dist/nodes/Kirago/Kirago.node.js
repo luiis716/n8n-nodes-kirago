@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Kirago = void 0;
 const n8n_workflow_1 = require("n8n-workflow");
-const user_1 = require("./resources/user");
-const company_1 = require("./resources/company");
 const message_1 = require("./resources/message");
 class Kirago {
     constructor() {
@@ -37,22 +35,12 @@ class Kirago {
                     noDataExpression: true,
                     options: [
                         {
-                            name: 'User',
-                            value: 'user',
-                        },
-                        {
-                            name: 'Company',
-                            value: 'company',
-                        },
-                        {
                             name: 'Message',
                             value: 'message',
                         },
                     ],
-                    default: 'user',
+                    default: 'message',
                 },
-                ...user_1.userDescription,
-                ...company_1.companyDescription,
                 ...message_1.messageDescription,
             ],
         };

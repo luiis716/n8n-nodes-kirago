@@ -1,6 +1,4 @@
 import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from 'n8n-workflow';
-import { userDescription } from './resources/user';
-import { companyDescription } from './resources/company';
 import { messageDescription } from './resources/message';
 
 export class Kirago implements INodeType {
@@ -34,22 +32,12 @@ export class Kirago implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: 'User',
-						value: 'user',
-					},
-					{
-						name: 'Company',
-						value: 'company',
-					},
-					{
 						name: 'Message',
 						value: 'message',
 					},
 				],
-				default: 'user',
+				default: 'message',
 			},
-			...userDescription,
-			...companyDescription,
 			...messageDescription,
 		],
 	};

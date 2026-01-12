@@ -24,7 +24,8 @@ export const messageDescription: INodeProperties[] = [
 					request: {
 						method: 'POST',
 						url: '/chat/send/text',
-						body: '={{ JSON.parse($parameter.bodyJson) }}',
+						body:
+							'={{ { Phone: $parameter.phone, Body: $parameter.body, LinkPreview: $parameter.linkPreview, ...( $parameter.id ? { Id: $parameter.id } : {} ), ...( $parameter.quotedText ? { QuotedText: $parameter.quotedText } : {} ), ...( $parameter.stanzaId || $parameter.participant || $parameter.isForwarded || $parameter.mentionedJid ? { ContextInfo: { ...( $parameter.stanzaId ? { StanzaId: $parameter.stanzaId } : {} ), ...( $parameter.participant ? { Participant: $parameter.participant } : {} ), ...( $parameter.isForwarded ? { IsForwarded: true } : {} ), ...( $parameter.mentionedJid ? { MentionedJID: $parameter.mentionedJid.split(/[\n,]+/).map(s => s.trim()).filter(Boolean) } : {} ), }, } : {} ), } }}',
 					},
 				},
 			},

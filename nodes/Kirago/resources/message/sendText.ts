@@ -1,41 +1,81 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const defaultSendTextPayload = JSON.stringify(
-	{
-		Phone: '5491155553935',
-		Body: 'How you doin',
-		LinkPreview: true,
-		Id: 'ABCDABCD1234',
-		ContextInfo: {
-			StanzaId: '3EB06F9067F80BAB89FF',
-			Participant: '5491155553935@s.whatsapp.net',
-			IsForwarded: true,
-			MentionedJID: [
-				'5491155553935@s.whatsapp.net',
-				'5491155553936@s.whatsapp.net',
-			],
-		},
-		QuotedText: 'Original message text',
-	},
-	null,
-	2,
-);
+const showOnlyForSendText = {
+	resource: ['message'],
+	operation: ['sendText'],
+};
 
 export const sendTextDescription: INodeProperties[] = [
 	{
-		displayName: 'Payload (JSON)',
-		name: 'bodyJson',
+		displayName: 'Phone',
+		name: 'phone',
 		type: 'string',
-		typeOptions: {
-			rows: 12,
-		},
-		default: defaultSendTextPayload,
-		displayOptions: {
-			show: {
-				resource: ['message'],
-				operation: ['sendText'],
-			},
-		},
-		description: 'JSON enviado para o endpoint /chat/send/text',
+		required: true,
+		default: '',
+		description: 'Número WhatsApp em formato internacional, ex.: 5511999999999',
+		displayOptions: { show: showOnlyForSendText },
+	},
+	{
+		displayName: 'Body',
+		name: 'body',
+		type: 'string',
+		required: true,
+		typeOptions: { rows: 3 },
+		default: 'How you doin',
+		displayOptions: { show: showOnlyForSendText },
+	},
+	{
+		displayName: 'Link Preview',
+		name: 'linkPreview',
+		type: 'boolean',
+		default: true,
+		displayOptions: { show: showOnlyForSendText },
+	},
+	{
+		displayName: 'ID',
+		name: 'id',
+		type: 'string',
+		default: '',
+		description: 'Identificador opcional para controle do cliente',
+		displayOptions: { show: showOnlyForSendText },
+	},
+	{
+		displayName: 'Quoted Text',
+		name: 'quotedText',
+		type: 'string',
+		typeOptions: { rows: 3 },
+		default: '',
+		displayOptions: { show: showOnlyForSendText },
+		description: 'Texto original citado na mensagem',
+	},
+	{
+		displayName: 'Context Stanza ID',
+		name: 'stanzaId',
+		type: 'string',
+		default: '',
+		displayOptions: { show: showOnlyForSendText },
+	},
+	{
+		displayName: 'Context Participant',
+		name: 'participant',
+		type: 'string',
+		default: '',
+		displayOptions: { show: showOnlyForSendText },
+	},
+	{
+		displayName: 'Context Is Forwarded',
+		name: 'isForwarded',
+		type: 'boolean',
+		default: false,
+		displayOptions: { show: showOnlyForSendText },
+	},
+	{
+		displayName: 'Context Mentioned JIDs',
+		name: 'mentionedJid',
+		type: 'string',
+		typeOptions: { rows: 3 },
+		default: '',
+		description: 'Liste os JIDs separados por vírgula ou quebra de linha',
+		displayOptions: { show: showOnlyForSendText },
 	},
 ];
