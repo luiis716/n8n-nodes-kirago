@@ -52,9 +52,29 @@ export class Kirago implements INodeType {
 		for (let i = 0; i < items.length; i++) {
 			const phone = this.getNodeParameter('phone', i) as string;
 			const bodyText = this.getNodeParameter('body', i) as string;
-			const linkPreview = this.getNodeParameter('linkPreview', i) as boolean;
+			const extra = (this.getNodeParameter('additionalFields', i) as Record<string, unknown>) || {};
 
-			const payload = { Phone: phone, Body: bodyText, LinkPreview: linkPreview };
+			const context: Record<string, unknown> = {};
+			if (extra.stanzaId) context.StanzaId = extra.stanzaId;
+			if (extra.participant) context.Participant = extra.participant;
+			if (extra.isForwarded) context.IsForwarded = true;
+			const mentioned = (extra.mentionedJid as string | undefined)?.split(/[\n,]+/)
+				.map((s) => s.trim())
+				.filter(Boolean);
+			if (mentioned?.length) context.MentionedJID = mentioned;
+
+			const payload: Record<string, unknown> = {
+				Phone: phone,
+				Body: bodyText,
+				LinkPreview:
+					extra.linkPreview !== undefined
+						? (extra.linkPreview as boolean)
+						: true,
+			};
+
+			if (extra.id) payload.Id = extra.id;
+			if (extra.quotedText) payload.QuotedText = extra.quotedText;
+			if (Object.keys(context).length) payload.ContextInfo = context;
 
 			const response = await this.helpers.httpRequestWithAuthentication.call(this, 'kiragoApi', {
 				method: 'POST',
