@@ -25,7 +25,7 @@ export const messageDescription: INodeProperties[] = [
 						method: 'POST',
 						url: '/chat/send/text',
 						body:
-							'={{ (() => { const context = {}; if ($parameter.stanzaId) context.StanzaId = $parameter.stanzaId; if ($parameter.participant) context.Participant = $parameter.participant; if ($parameter.isForwarded) context.IsForwarded = true; const mentioned = ($parameter.mentionedJid || "").split(/[\n,]+/).map(s => s.trim()).filter(Boolean); if (mentioned.length) context.MentionedJID = mentioned; const payload = { Phone: $parameter.phone, Body: $parameter.body, LinkPreview: $parameter.linkPreview }; if ($parameter.id) payload.Id = $parameter.id; if ($parameter.quotedText) payload.QuotedText = $parameter.quotedText; if (Object.keys(context).length) payload.ContextInfo = context; return payload; })() }}',
+							'={{ (() => { const extra = $parameter.additionalFields || {}; const context = {}; if (extra.stanzaId) context.StanzaId = extra.stanzaId; if (extra.participant) context.Participant = extra.participant; if (extra.isForwarded) context.IsForwarded = true; const mentioned = (extra.mentionedJid || "").split(/[\n,]+/).map(s => s.trim()).filter(Boolean); if (mentioned.length) context.MentionedJID = mentioned; const payload = { Phone: $parameter.phone, Body: $parameter.body, LinkPreview: extra.linkPreview ?? true }; if (extra.id) payload.Id = extra.id; if (extra.quotedText) payload.QuotedText = extra.quotedText; if (Object.keys(context).length) payload.ContextInfo = context; return payload; })() }}',
 					},
 				},
 			},
