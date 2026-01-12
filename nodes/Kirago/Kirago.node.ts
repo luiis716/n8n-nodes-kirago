@@ -1,0 +1,50 @@
+import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from 'n8n-workflow';
+import { userDescription } from './resources/user';
+import { companyDescription } from './resources/company';
+
+export class Kirago implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: 'Kirago',
+		name: 'kirago',
+		icon: { light: 'file:kirago.svg', dark: 'file:kirago.dark.svg' },
+		group: ['transform'],
+		version: 1,
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
+		description: 'Interact with the Kirago API',
+		defaults: {
+			name: 'Kirago',
+		},
+		usableAsTool: true,
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
+		credentials: [{ name: 'kiragoApi', required: true }],
+		requestDefaults: {
+			baseURL: 'https://kirago.com.br/',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+		},
+		properties: [
+			{
+				displayName: 'Resource',
+				name: 'resource',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{
+						name: 'User',
+						value: 'user',
+					},
+					{
+						name: 'Company',
+						value: 'company',
+					},
+				],
+				default: 'user',
+			},
+			...userDescription,
+			...companyDescription,
+		],
+	};
+}
