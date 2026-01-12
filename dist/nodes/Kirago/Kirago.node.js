@@ -4,6 +4,7 @@ exports.Kirago = void 0;
 const n8n_workflow_1 = require("n8n-workflow");
 const user_1 = require("./resources/user");
 const company_1 = require("./resources/company");
+const message_1 = require("./resources/message");
 class Kirago {
     constructor() {
         this.description = {
@@ -43,11 +44,16 @@ class Kirago {
                             name: 'Company',
                             value: 'company',
                         },
+                        {
+                            name: 'Message',
+                            value: 'message',
+                        },
                     ],
                     default: 'user',
                 },
                 ...user_1.userDescription,
                 ...company_1.companyDescription,
+                ...message_1.messageDescription,
             ],
         };
     }
