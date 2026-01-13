@@ -31,7 +31,7 @@ export const sendAudioDescription: INodeProperties[] = [
 		type: 'boolean',
 		required: true,
 		default: true,
-		description: 'Marque como true para mensagens de voz (push-to-talk)',
+		description: 'Whether the message should be marked as PTT (push-to-talk)',
 		displayOptions: { show: showOnlyForSendAudio },
 	},
 	{
@@ -71,13 +71,6 @@ export const sendAudioDescription: INodeProperties[] = [
 		displayOptions: { show: showOnlyForSendAudio },
 		options: [
 			{
-				displayName: 'ID',
-				name: 'id',
-				type: 'string',
-				default: '',
-				description: 'Identificador opcional para controle do cliente',
-			},
-			{
 				displayName: 'Context Is Forwarded',
 				name: 'isForwarded',
 				type: 'boolean',
@@ -103,6 +96,13 @@ export const sendAudioDescription: INodeProperties[] = [
 				name: 'stanzaId',
 				type: 'string',
 				default: '',
+			},
+			{
+				displayName: 'ID',
+				name: 'id',
+				type: 'string',
+				default: '',
+				description: 'Identificador opcional para controle do cliente',
 			},
 		],
 	},
