@@ -2,6 +2,9 @@ import type { INodeProperties } from 'n8n-workflow';
 import { sendTextDescription } from './sendText';
 import { sendImageDescription } from './sendImage';
 import { sendAudioDescription } from './sendAudio';
+import { sendVideoDescription } from './sendVideo';
+import { sendDocumentDescription } from './sendDocument';
+
 
 const showOnlyForMessages = {
     resource: ['message'],
@@ -35,10 +38,24 @@ export const messageDescription: INodeProperties[] = [
 				action: 'Send audio message',
 				description: 'Enviar mensagem de áudio via Kirago',
 			},
+						{
+				name: 'Send video',
+				value: 'sendVideo',
+				action: 'Send video message',
+				description: 'Enviar mensagem de vídeo via Kirago',
+			},
+			{
+				name: 'Send Document',
+				value: 'sendDocument',
+				action: 'Send document message',
+				description: 'Enviar documento via Kirago',
+			},
 		],
 		default: 'sendText',
 	},
 	...sendTextDescription,
 	...sendImageDescription,
 	...sendAudioDescription,
+	...sendDocumentDescription,
+	...sendVideoDescription,
 ];
