@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageDescription = void 0;
-const sendText_1 = require("./sendText");
-const sendImage_1 = require("./sendImage");
 const sendAudio_1 = require("./sendAudio");
-const sendVideo_1 = require("./sendVideo");
+const sendButtons_1 = require("./sendButtons");
 const sendDocument_1 = require("./sendDocument");
+const sendImage_1 = require("./sendImage");
+const sendText_1 = require("./sendText");
+const sendVideo_1 = require("./sendVideo");
 const showOnlyForMessages = {
     resource: ['message'],
 };
@@ -24,6 +25,12 @@ exports.messageDescription = [
                 value: 'sendAudio',
                 action: 'Send audio message',
                 description: 'Enviar mensagem de áudio via Kirago',
+            },
+            {
+                name: 'Send Buttons',
+                value: 'sendButtons',
+                action: 'Send buttons message',
+                description: 'Enviar botões via Kirago',
             },
             {
                 name: 'Send Document',
@@ -55,6 +62,7 @@ exports.messageDescription = [
     ...sendText_1.sendTextDescription,
     ...sendImage_1.sendImageDescription,
     ...sendAudio_1.sendAudioDescription,
+    ...sendButtons_1.sendButtonsDescription,
     ...sendDocument_1.sendDocumentDescription,
     ...sendVideo_1.sendVideoDescription,
 ];
