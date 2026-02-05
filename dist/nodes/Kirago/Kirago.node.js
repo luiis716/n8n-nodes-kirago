@@ -156,40 +156,37 @@ class Kirago {
                 const bodyText = this.getNodeParameter('body', i);
                 const footerText = this.getNodeParameter('footer', i);
                 const headerType = this.getNodeParameter('headerType', i);
-                const headerText = this.getNodeParameter('headerText', i);
                 const headerMediaUrl = this.getNodeParameter('headerMediaUrl', i);
-                const headerThumbnailUrl = this.getNodeParameter('headerThumbnailUrl', i);
                 const buttonsRaw = this.getNodeParameter('buttons', i);
-                const extra = this.getNodeParameter('additionalFields', i) || {};
-                const context = buildContextInfo(extra);
                 const buttons = (_a = buttonsRaw === null || buttonsRaw === void 0 ? void 0 : buttonsRaw.button) !== null && _a !== void 0 ? _a : [];
                 if (!buttons.length) {
                     throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one button is required');
                 }
+                if (headerType && headerType !== 'none' && headerType !== 'image' && headerType !== 'video') {
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Unsupported header type: ${headerType}`);
+                }
+                if (headerType && headerType !== 'none' && !headerMediaUrl) {
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Header Media URL is required when Header Type is Image/Video');
+                }
                 const payload = {
-                    Phone: phone,
-                    Body: bodyText,
-                    Buttons: buttons.map((b) => ({
-                        ButtonType: b.buttonType,
-                        ButtonId: b.buttonId,
-                        DisplayText: b.displayText,
+                    phone,
+                    body: bodyText,
+                    buttons: buttons.map((b) => ({
+                        name: b.buttonType,
+                        buttonParamsJson: {
+                            display_text: b.displayText,
+                            id: b.buttonId,
+                        },
                     })),
                 };
                 if (footerText)
-                    payload.Footer = footerText;
+                    payload.footer = footerText;
                 if (headerType && headerType !== 'none') {
-                    payload.HeaderType = headerType;
-                    if (headerType === 'text' && headerText)
-                        payload.HeaderText = headerText;
-                    if ((headerType === 'image' || headerType === 'video') && headerMediaUrl)
-                        payload.HeaderMediaUrl = headerMediaUrl;
-                    if (headerType === 'video' && headerThumbnailUrl)
-                        payload.HeaderThumbnailUrl = headerThumbnailUrl;
+                    payload.header = {
+                        type: headerType,
+                        media_url: headerMediaUrl,
+                    };
                 }
-                if (extra.id)
-                    payload.Id = extra.id;
-                if (Object.keys(context).length)
-                    payload.ContextInfo = context;
                 const response = await post('/chat/send/buttons', payload);
                 returnData.push({ json: response });
                 continue;

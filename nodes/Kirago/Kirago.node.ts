@@ -170,44 +170,44 @@ export class Kirago implements INodeType {
 				const bodyText = this.getNodeParameter('body', i) as string;
 				const footerText = this.getNodeParameter('footer', i) as string;
 				const headerType = this.getNodeParameter('headerType', i) as string;
-				const headerText = this.getNodeParameter('headerText', i) as string;
 				const headerMediaUrl = this.getNodeParameter('headerMediaUrl', i) as string;
-				const headerThumbnailUrl = this.getNodeParameter('headerThumbnailUrl', i) as string;
 				const buttonsRaw = this.getNodeParameter('buttons', i) as {
 					button?: Array<{ buttonType: string; buttonId: string; displayText: string }>;
 				};
-				const extra = (this.getNodeParameter('additionalFields', i) as Record<string, unknown>) || {};
-
-				const context = buildContextInfo(extra);
 				const buttons = buttonsRaw?.button ?? [];
 
 				if (!buttons.length) {
 					throw new NodeOperationError(this.getNode(), 'At least one button is required');
 				}
 
+				if (headerType && headerType !== 'none' && headerType !== 'image' && headerType !== 'video') {
+					throw new NodeOperationError(this.getNode(), `Unsupported header type: ${headerType}`);
+				}
+
+				if (headerType && headerType !== 'none' && !headerMediaUrl) {
+					throw new NodeOperationError(this.getNode(), 'Header Media URL is required when Header Type is Image/Video');
+				}
+
 				const payload: Record<string, unknown> = {
-					Phone: phone,
-					Body: bodyText,
-					Buttons: buttons.map((b) => ({
-						ButtonType: b.buttonType,
-						ButtonId: b.buttonId,
-						DisplayText: b.displayText,
+					phone,
+					body: bodyText,
+					buttons: buttons.map((b) => ({
+						name: b.buttonType,
+						buttonParamsJson: {
+							display_text: b.displayText,
+							id: b.buttonId,
+						},
 					})),
 				};
 
-				if (footerText) payload.Footer = footerText;
+				if (footerText) payload.footer = footerText;
 
 				if (headerType && headerType !== 'none') {
-					payload.HeaderType = headerType;
-					if (headerType === 'text' && headerText) payload.HeaderText = headerText;
-					if ((headerType === 'image' || headerType === 'video') && headerMediaUrl)
-						payload.HeaderMediaUrl = headerMediaUrl;
-					if (headerType === 'video' && headerThumbnailUrl)
-						payload.HeaderThumbnailUrl = headerThumbnailUrl;
+					payload.header = {
+						type: headerType,
+						media_url: headerMediaUrl,
+					};
 				}
-
-				if (extra.id) payload.Id = extra.id;
-				if (Object.keys(context).length) payload.ContextInfo = context;
 
 				const response = await post('/chat/send/buttons', payload);
 

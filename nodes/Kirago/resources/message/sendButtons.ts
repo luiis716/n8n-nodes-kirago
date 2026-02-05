@@ -7,15 +7,12 @@ const showOnlyForSendButtons = {
 
 const headerTypeOptions = [
 	{ name: 'None', value: 'none' },
-	{ name: 'Text', value: 'text' },
 	{ name: 'Image', value: 'image' },
 	{ name: 'Video', value: 'video' },
 ];
 
 const buttonTypeOptions = [
 	{ name: 'Quick Reply', value: 'quick_reply' },
-	{ name: 'URL', value: 'url' },
-	{ name: 'Phone', value: 'phone' },
 ];
 
 export const sendButtonsDescription: INodeProperties[] = [
@@ -57,42 +54,15 @@ export const sendButtonsDescription: INodeProperties[] = [
 		displayOptions: { show: showOnlyForSendButtons },
 	},
 	{
-		displayName: 'Header Text',
-		name: 'headerText',
-		type: 'string',
-		typeOptions: { rows: 3 },
-		default: '',
-		description: 'Texto do cabeçalho (opcional)',
-		displayOptions: {
-			show: {
-				...showOnlyForSendButtons,
-				headerType: ['text'],
-			},
-		},
-	},
-	{
 		displayName: 'Header Media URL',
 		name: 'headerMediaUrl',
 		type: 'string',
 		default: '',
-		description: 'URL do vídeo ou da imagem exibida no cabeçalho',
+		description: 'URL do vídeo ou da imagem exibida no cabeçalho (obrigatório para Image/Video)',
 		displayOptions: {
 			show: {
 				...showOnlyForSendButtons,
 				headerType: ['image', 'video'],
-			},
-		},
-	},
-	{
-		displayName: 'Header Thumbnail URL',
-		name: 'headerThumbnailUrl',
-		type: 'string',
-		default: '',
-		description: 'Miniatura exibida para vídeos',
-		displayOptions: {
-			show: {
-				...showOnlyForSendButtons,
-				headerType: ['video'],
 			},
 		},
 	},
@@ -139,48 +109,4 @@ export const sendButtonsDescription: INodeProperties[] = [
 			},
 		],
 	},
-		{
-			displayName: 'Additional Options',
-			name: 'additionalFields',
-			type: 'collection',
-			placeholder: 'Add option',
-			default: {},
-			displayOptions: { show: showOnlyForSendButtons },
-			options: [
-				{
-					displayName: 'Context Is Forwarded',
-					name: 'isForwarded',
-					type: 'boolean',
-					default: false,
-					description: 'Whether the message is forwarded',
-				},
-				{
-					displayName: 'Context Mentioned JIDs',
-					name: 'mentionedJid',
-					type: 'string',
-					typeOptions: { rows: 3 },
-					default: '',
-					description: 'Liste os JIDs separados por vírgula ou quebra de linha',
-				},
-				{
-					displayName: 'Context Participant',
-					name: 'participant',
-					type: 'string',
-					default: '',
-				},
-				{
-					displayName: 'Context Stanza ID',
-					name: 'stanzaId',
-					type: 'string',
-					default: '',
-				},
-				{
-					displayName: 'ID',
-					name: 'id',
-					type: 'string',
-					default: '',
-					description: 'Identificador opcional para controle do cliente',
-				},
-			],
-		},
 ];
