@@ -49,6 +49,31 @@ export class Kirago implements INodeType {
 		const credentials = (await this.getCredentials('kiragoApi')) as { baseUrl: string };
 		const baseURL = credentials.baseUrl.endsWith('/') ? credentials.baseUrl : `${credentials.baseUrl}/`;
 
+		const buildContextInfo = (extra: Record<string, unknown>) => {
+			const context: Record<string, unknown> = {};
+
+			if (extra.stanzaId) context.StanzaId = extra.stanzaId;
+			if (extra.participant) context.Participant = extra.participant;
+			if (extra.isForwarded) context.IsForwarded = true;
+
+			const mentioned = (extra.mentionedJid as string | undefined)
+				?.split(/[\n,]+/)
+				.map((s) => s.trim())
+				.filter(Boolean);
+			if (mentioned?.length) context.MentionedJID = mentioned;
+
+			return context;
+		};
+
+		const post = async (url: string, body: Record<string, unknown>) =>
+			this.helpers.httpRequestWithAuthentication.call(this, 'kiragoApi', {
+				method: 'POST',
+				url,
+				baseURL,
+				body,
+				json: true,
+			});
+
 		for (let i = 0; i < items.length; i++) {
 			const resource = this.getNodeParameter('resource', i) as string;
 			const operation = this.getNodeParameter('operation', i) as string;
@@ -61,14 +86,7 @@ export class Kirago implements INodeType {
 				const bodyText = this.getNodeParameter('body', i) as string;
 				const extra = (this.getNodeParameter('additionalFields', i) as Record<string, unknown>) || {};
 
-				const context: Record<string, unknown> = {};
-				if (extra.stanzaId) context.StanzaId = extra.stanzaId;
-				if (extra.participant) context.Participant = extra.participant;
-				if (extra.isForwarded) context.IsForwarded = true;
-				const mentioned = (extra.mentionedJid as string | undefined)?.split(/[\n,]+/)
-					.map((s) => s.trim())
-					.filter(Boolean);
-				if (mentioned?.length) context.MentionedJID = mentioned;
+				const context = buildContextInfo(extra);
 
 				const payload: Record<string, unknown> = {
 					Phone: phone,
@@ -83,13 +101,7 @@ export class Kirago implements INodeType {
 				if (extra.quotedText) payload.QuotedText = extra.quotedText;
 				if (Object.keys(context).length) payload.ContextInfo = context;
 
-				const response = await this.helpers.httpRequestWithAuthentication.call(this, 'kiragoApi', {
-					method: 'POST',
-					url: '/chat/send/text',
-					baseURL,
-					body: payload,
-					json: true,
-				});
+				const response = await post('/chat/send/text', payload);
 
 				returnData.push({ json: response as INodeExecutionData['json'] });
 				continue;
@@ -100,14 +112,7 @@ export class Kirago implements INodeType {
 				const image = this.getNodeParameter('image', i) as string;
 				const extra = (this.getNodeParameter('additionalFields', i) as Record<string, unknown>) || {};
 
-				const context: Record<string, unknown> = {};
-				if (extra.stanzaId) context.StanzaId = extra.stanzaId;
-				if (extra.participant) context.Participant = extra.participant;
-				if (extra.isForwarded) context.IsForwarded = true;
-				const mentioned = (extra.mentionedJid as string | undefined)?.split(/[\n,]+/)
-					.map((s) => s.trim())
-					.filter(Boolean);
-				if (mentioned?.length) context.MentionedJID = mentioned;
+				const context = buildContextInfo(extra);
 
 				const payload: Record<string, unknown> = {
 					Phone: phone,
@@ -118,13 +123,140 @@ export class Kirago implements INodeType {
 				if (extra.id) payload.Id = extra.id;
 				if (Object.keys(context).length) payload.ContextInfo = context;
 
-				const response = await this.helpers.httpRequestWithAuthentication.call(this, 'kiragoApi', {
-					method: 'POST',
-					url: '/chat/send/image',
-					baseURL,
-					body: payload,
-					json: true,
-				});
+				const response = await post('/chat/send/image', payload);
+
+				returnData.push({ json: response as INodeExecutionData['json'] });
+				continue;
+			}
+
+			if (operation === 'sendAudio') {
+				const phone = this.getNodeParameter('phone', i) as string;
+				const audio = this.getNodeParameter('audio', i) as string;
+				const ptt = this.getNodeParameter('ptt', i) as boolean;
+				const mimeType = this.getNodeParameter('mimeType', i) as string;
+				const seconds = this.getNodeParameter('seconds', i) as number;
+				const waveformRaw = this.getNodeParameter('waveform', i) as string;
+				const extra = (this.getNodeParameter('additionalFields', i) as Record<string, unknown>) || {};
+
+				const context = buildContextInfo(extra);
+
+				let waveform: unknown = waveformRaw;
+				try {
+					waveform = JSON.parse(waveformRaw);
+				} catch {}
+
+				const payload: Record<string, unknown> = {
+					Phone: phone,
+					Audio: audio,
+					PTT: ptt,
+					MimeType: mimeType,
+					Seconds: seconds,
+					Waveform: waveform,
+				};
+
+				if (extra.id) payload.Id = extra.id;
+				if (Object.keys(context).length) payload.ContextInfo = context;
+
+				const response = await post('/chat/send/audio', payload);
+
+				returnData.push({ json: response as INodeExecutionData['json'] });
+				continue;
+			}
+
+			if (operation === 'sendButtons') {
+				const phone = this.getNodeParameter('phone', i) as string;
+				const bodyText = this.getNodeParameter('body', i) as string;
+				const footerText = this.getNodeParameter('footer', i) as string;
+				const headerType = this.getNodeParameter('headerType', i) as string;
+				const headerText = this.getNodeParameter('headerText', i) as string;
+				const headerMediaUrl = this.getNodeParameter('headerMediaUrl', i) as string;
+				const headerThumbnailUrl = this.getNodeParameter('headerThumbnailUrl', i) as string;
+				const buttonsRaw = this.getNodeParameter('buttons', i) as {
+					button?: Array<{ buttonType: string; buttonId: string; displayText: string }>;
+				};
+				const extra = (this.getNodeParameter('additionalFields', i) as Record<string, unknown>) || {};
+
+				const context = buildContextInfo(extra);
+				const buttons = buttonsRaw?.button ?? [];
+
+				if (!buttons.length) {
+					throw new NodeOperationError(this.getNode(), 'At least one button is required');
+				}
+
+				const payload: Record<string, unknown> = {
+					Phone: phone,
+					Body: bodyText,
+					Buttons: buttons.map((b) => ({
+						ButtonType: b.buttonType,
+						ButtonId: b.buttonId,
+						DisplayText: b.displayText,
+					})),
+				};
+
+				if (footerText) payload.Footer = footerText;
+
+				if (headerType && headerType !== 'none') {
+					payload.HeaderType = headerType;
+					if (headerType === 'text' && headerText) payload.HeaderText = headerText;
+					if ((headerType === 'image' || headerType === 'video') && headerMediaUrl)
+						payload.HeaderMediaUrl = headerMediaUrl;
+					if (headerType === 'video' && headerThumbnailUrl)
+						payload.HeaderThumbnailUrl = headerThumbnailUrl;
+				}
+
+				if (extra.id) payload.Id = extra.id;
+				if (Object.keys(context).length) payload.ContextInfo = context;
+
+				const response = await post('/chat/send/buttons', payload);
+
+				returnData.push({ json: response as INodeExecutionData['json'] });
+				continue;
+			}
+
+			if (operation === 'sendDocument') {
+				const phone = this.getNodeParameter('phone', i) as string;
+				const document = this.getNodeParameter('document', i) as string;
+				const fileName = this.getNodeParameter('fileName', i) as string;
+				const extra = (this.getNodeParameter('additionalFields', i) as Record<string, unknown>) || {};
+
+				const context = buildContextInfo(extra);
+
+				const payload: Record<string, unknown> = {
+					Phone: phone,
+					Document: document,
+					FileName: fileName,
+				};
+
+				if (extra.id) payload.Id = extra.id;
+				if (Object.keys(context).length) payload.ContextInfo = context;
+
+				const response = await post('/chat/send/document', payload);
+
+				returnData.push({ json: response as INodeExecutionData['json'] });
+				continue;
+			}
+
+			if (operation === 'sendVideo') {
+				const phone = this.getNodeParameter('phone', i) as string;
+				const video = this.getNodeParameter('video', i) as string;
+				const caption = this.getNodeParameter('caption', i) as string;
+				const id = this.getNodeParameter('id', i) as string;
+				const jpegThumbnail = this.getNodeParameter('jpegThumbnail', i) as string;
+				const extra = (this.getNodeParameter('additionalFields', i) as Record<string, unknown>) || {};
+
+				const context = buildContextInfo(extra);
+
+				const payload: Record<string, unknown> = {
+					Phone: phone,
+					Video: video,
+					Caption: caption,
+					Id: id,
+					JpegThumbnail: jpegThumbnail,
+				};
+
+				if (Object.keys(context).length) payload.ContextInfo = context;
+
+				const response = await post('/chat/send/video', payload);
 
 				returnData.push({ json: response as INodeExecutionData['json'] });
 				continue;

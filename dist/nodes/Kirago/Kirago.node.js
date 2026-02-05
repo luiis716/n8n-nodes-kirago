@@ -46,11 +46,32 @@ class Kirago {
         };
     }
     async execute() {
-        var _a, _b;
+        var _a;
         const items = this.getInputData();
         const returnData = [];
         const credentials = (await this.getCredentials('kiragoApi'));
         const baseURL = credentials.baseUrl.endsWith('/') ? credentials.baseUrl : `${credentials.baseUrl}/`;
+        const buildContextInfo = (extra) => {
+            var _a;
+            const context = {};
+            if (extra.stanzaId)
+                context.StanzaId = extra.stanzaId;
+            if (extra.participant)
+                context.Participant = extra.participant;
+            if (extra.isForwarded)
+                context.IsForwarded = true;
+            const mentioned = (_a = extra.mentionedJid) === null || _a === void 0 ? void 0 : _a.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+            if (mentioned === null || mentioned === void 0 ? void 0 : mentioned.length)
+                context.MentionedJID = mentioned;
+            return context;
+        };
+        const post = async (url, body) => this.helpers.httpRequestWithAuthentication.call(this, 'kiragoApi', {
+            method: 'POST',
+            url,
+            baseURL,
+            body,
+            json: true,
+        });
         for (let i = 0; i < items.length; i++) {
             const resource = this.getNodeParameter('resource', i);
             const operation = this.getNodeParameter('operation', i);
@@ -61,16 +82,7 @@ class Kirago {
                 const phone = this.getNodeParameter('phone', i);
                 const bodyText = this.getNodeParameter('body', i);
                 const extra = this.getNodeParameter('additionalFields', i) || {};
-                const context = {};
-                if (extra.stanzaId)
-                    context.StanzaId = extra.stanzaId;
-                if (extra.participant)
-                    context.Participant = extra.participant;
-                if (extra.isForwarded)
-                    context.IsForwarded = true;
-                const mentioned = (_a = extra.mentionedJid) === null || _a === void 0 ? void 0 : _a.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
-                if (mentioned === null || mentioned === void 0 ? void 0 : mentioned.length)
-                    context.MentionedJID = mentioned;
+                const context = buildContextInfo(extra);
                 const payload = {
                     Phone: phone,
                     Body: bodyText,
@@ -84,13 +96,7 @@ class Kirago {
                     payload.QuotedText = extra.quotedText;
                 if (Object.keys(context).length)
                     payload.ContextInfo = context;
-                const response = await this.helpers.httpRequestWithAuthentication.call(this, 'kiragoApi', {
-                    method: 'POST',
-                    url: '/chat/send/text',
-                    baseURL,
-                    body: payload,
-                    json: true,
-                });
+                const response = await post('/chat/send/text', payload);
                 returnData.push({ json: response });
                 continue;
             }
@@ -98,16 +104,7 @@ class Kirago {
                 const phone = this.getNodeParameter('phone', i);
                 const image = this.getNodeParameter('image', i);
                 const extra = this.getNodeParameter('additionalFields', i) || {};
-                const context = {};
-                if (extra.stanzaId)
-                    context.StanzaId = extra.stanzaId;
-                if (extra.participant)
-                    context.Participant = extra.participant;
-                if (extra.isForwarded)
-                    context.IsForwarded = true;
-                const mentioned = (_b = extra.mentionedJid) === null || _b === void 0 ? void 0 : _b.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
-                if (mentioned === null || mentioned === void 0 ? void 0 : mentioned.length)
-                    context.MentionedJID = mentioned;
+                const context = buildContextInfo(extra);
                 const payload = {
                     Phone: phone,
                     Image: image,
@@ -118,13 +115,120 @@ class Kirago {
                     payload.Id = extra.id;
                 if (Object.keys(context).length)
                     payload.ContextInfo = context;
-                const response = await this.helpers.httpRequestWithAuthentication.call(this, 'kiragoApi', {
-                    method: 'POST',
-                    url: '/chat/send/image',
-                    baseURL,
-                    body: payload,
-                    json: true,
-                });
+                const response = await post('/chat/send/image', payload);
+                returnData.push({ json: response });
+                continue;
+            }
+            if (operation === 'sendAudio') {
+                const phone = this.getNodeParameter('phone', i);
+                const audio = this.getNodeParameter('audio', i);
+                const ptt = this.getNodeParameter('ptt', i);
+                const mimeType = this.getNodeParameter('mimeType', i);
+                const seconds = this.getNodeParameter('seconds', i);
+                const waveformRaw = this.getNodeParameter('waveform', i);
+                const extra = this.getNodeParameter('additionalFields', i) || {};
+                const context = buildContextInfo(extra);
+                let waveform = waveformRaw;
+                try {
+                    waveform = JSON.parse(waveformRaw);
+                }
+                catch { }
+                const payload = {
+                    Phone: phone,
+                    Audio: audio,
+                    PTT: ptt,
+                    MimeType: mimeType,
+                    Seconds: seconds,
+                    Waveform: waveform,
+                };
+                if (extra.id)
+                    payload.Id = extra.id;
+                if (Object.keys(context).length)
+                    payload.ContextInfo = context;
+                const response = await post('/chat/send/audio', payload);
+                returnData.push({ json: response });
+                continue;
+            }
+            if (operation === 'sendButtons') {
+                const phone = this.getNodeParameter('phone', i);
+                const bodyText = this.getNodeParameter('body', i);
+                const footerText = this.getNodeParameter('footer', i);
+                const headerType = this.getNodeParameter('headerType', i);
+                const headerText = this.getNodeParameter('headerText', i);
+                const headerMediaUrl = this.getNodeParameter('headerMediaUrl', i);
+                const headerThumbnailUrl = this.getNodeParameter('headerThumbnailUrl', i);
+                const buttonsRaw = this.getNodeParameter('buttons', i);
+                const extra = this.getNodeParameter('additionalFields', i) || {};
+                const context = buildContextInfo(extra);
+                const buttons = (_a = buttonsRaw === null || buttonsRaw === void 0 ? void 0 : buttonsRaw.button) !== null && _a !== void 0 ? _a : [];
+                if (!buttons.length) {
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one button is required');
+                }
+                const payload = {
+                    Phone: phone,
+                    Body: bodyText,
+                    Buttons: buttons.map((b) => ({
+                        ButtonType: b.buttonType,
+                        ButtonId: b.buttonId,
+                        DisplayText: b.displayText,
+                    })),
+                };
+                if (footerText)
+                    payload.Footer = footerText;
+                if (headerType && headerType !== 'none') {
+                    payload.HeaderType = headerType;
+                    if (headerType === 'text' && headerText)
+                        payload.HeaderText = headerText;
+                    if ((headerType === 'image' || headerType === 'video') && headerMediaUrl)
+                        payload.HeaderMediaUrl = headerMediaUrl;
+                    if (headerType === 'video' && headerThumbnailUrl)
+                        payload.HeaderThumbnailUrl = headerThumbnailUrl;
+                }
+                if (extra.id)
+                    payload.Id = extra.id;
+                if (Object.keys(context).length)
+                    payload.ContextInfo = context;
+                const response = await post('/chat/send/buttons', payload);
+                returnData.push({ json: response });
+                continue;
+            }
+            if (operation === 'sendDocument') {
+                const phone = this.getNodeParameter('phone', i);
+                const document = this.getNodeParameter('document', i);
+                const fileName = this.getNodeParameter('fileName', i);
+                const extra = this.getNodeParameter('additionalFields', i) || {};
+                const context = buildContextInfo(extra);
+                const payload = {
+                    Phone: phone,
+                    Document: document,
+                    FileName: fileName,
+                };
+                if (extra.id)
+                    payload.Id = extra.id;
+                if (Object.keys(context).length)
+                    payload.ContextInfo = context;
+                const response = await post('/chat/send/document', payload);
+                returnData.push({ json: response });
+                continue;
+            }
+            if (operation === 'sendVideo') {
+                const phone = this.getNodeParameter('phone', i);
+                const video = this.getNodeParameter('video', i);
+                const caption = this.getNodeParameter('caption', i);
+                const id = this.getNodeParameter('id', i);
+                const jpegThumbnail = this.getNodeParameter('jpegThumbnail', i);
+                const extra = this.getNodeParameter('additionalFields', i) || {};
+                const context = buildContextInfo(extra);
+                const payload = {
+                    Phone: phone,
+                    Video: video,
+                    Caption: caption,
+                    Id: id,
+                    JpegThumbnail: jpegThumbnail,
+                };
+                if (Object.keys(context).length)
+                    payload.ContextInfo = context;
+                const response = await post('/chat/send/video', payload);
                 returnData.push({ json: response });
                 continue;
             }
