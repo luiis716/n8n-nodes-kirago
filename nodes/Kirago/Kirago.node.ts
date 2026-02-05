@@ -140,10 +140,12 @@ export class Kirago implements INodeType {
 
 				const context = buildContextInfo(extra);
 
-				let waveform: unknown = waveformRaw;
-				try {
-					waveform = JSON.parse(waveformRaw);
-				} catch {}
+					let waveform: unknown = waveformRaw;
+					try {
+						waveform = JSON.parse(waveformRaw);
+					} catch {
+						waveform = waveformRaw;
+					}
 
 				const payload: Record<string, unknown> = {
 					Phone: phone,

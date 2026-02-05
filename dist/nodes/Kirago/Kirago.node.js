@@ -132,7 +132,9 @@ class Kirago {
                 try {
                     waveform = JSON.parse(waveformRaw);
                 }
-                catch { }
+                catch {
+                    waveform = waveformRaw;
+                }
                 const payload = {
                     Phone: phone,
                     Audio: audio,
