@@ -281,8 +281,18 @@ export class Kirago implements INodeType {
 				const text = ((this.getNodeParameter('text', i) as string) ?? '').trim();
 				const footer = ((this.getNodeParameter('footer', i) as string) ?? '').trim();
 				const viewOnce = this.getNodeParameter('viewOnce', i) as boolean;
-				const id = ((this.getNodeParameter('id', i) as string) ?? '').trim();
-				const quotedText = ((this.getNodeParameter('quotedText', i) as string) ?? '').trim();
+				let id = '';
+				let quotedText = '';
+				try {
+					id = (((this.getNodeParameter('id', i) as string) ?? '') as string).trim();
+				} catch {
+					id = '';
+				}
+				try {
+					quotedText = (((this.getNodeParameter('quotedText', i) as string) ?? '') as string).trim();
+				} catch {
+					quotedText = '';
+				}
 
 				if (carouselType !== 'global' && carouselType !== 'per_card') {
 					throw new NodeOperationError(this.getNode(), `Unsupported carousel type: ${carouselType}`);
@@ -336,12 +346,10 @@ export class Kirago implements INodeType {
 				if (carouselType === 'global') {
 					const globalButtonType = ((this.getNodeParameter('globalButtonType', i) as string) || 'quick_reply').trim();
 					const globalButtonDisplayText = ((this.getNodeParameter('globalButtonDisplayText', i) as string) ?? '').trim();
-					const globalButtonId = ((this.getNodeParameter('globalButtonId', i) as string) ?? '').trim();
-					const globalButtonUrl = ((this.getNodeParameter('globalButtonUrl', i) as string) ?? '').trim();
-					const globalButtonMerchantUrl = ((this.getNodeParameter('globalButtonMerchantUrl', i) as string) ?? '').trim();
 
 					if (globalButtonDisplayText) {
 						if (globalButtonType === 'quick_reply') {
+							const globalButtonId = ((this.getNodeParameter('globalButtonId', i) as string) ?? '').trim();
 							if (!globalButtonId) {
 								throw new NodeOperationError(this.getNode(), 'Global Button ID is required for Quick Reply');
 							}
@@ -353,6 +361,8 @@ export class Kirago implements INodeType {
 								},
 							];
 						} else if (globalButtonType === 'cta_url') {
+							const globalButtonUrl = ((this.getNodeParameter('globalButtonUrl', i) as string) ?? '').trim();
+							const globalButtonMerchantUrl = ((this.getNodeParameter('globalButtonMerchantUrl', i) as string) ?? '').trim();
 							if (!globalButtonUrl) {
 								throw new NodeOperationError(this.getNode(), 'Global Button URL is required for CTA URL');
 							}
@@ -400,6 +410,15 @@ export class Kirago implements INodeType {
 								url?: string;
 								merchantUrl?: string;
 							}>;
+							quickReply?: Array<{
+								buttonId: string;
+								displayText: string;
+							}>;
+							ctaUrl?: Array<{
+								displayText: string;
+								url: string;
+								merchantUrl?: string;
+							}>;
 						};
 					}>;
 				};
@@ -441,9 +460,37 @@ export class Kirago implements INodeType {
 						if (footer) cardPayload.Footer = footer;
 
 						if (carouselType === 'per_card') {
-							const buttons = c.buttons?.button ?? [];
-							if (buttons.length) {
-								cardPayload.Buttons = buttons.map(buildNativeFlowButton);
+							const legacyButtons = c.buttons?.button ?? [];
+							const quickReplies = c.buttons?.quickReply ?? [];
+							const ctaUrls = c.buttons?.ctaUrl ?? [];
+
+							const combinedButtons: Array<{
+								buttonType: string;
+								buttonId?: string;
+								displayText: string;
+								url?: string;
+								merchantUrl?: string;
+							}> = [...legacyButtons];
+
+							for (const b of quickReplies) {
+								combinedButtons.push({
+									buttonType: 'quick_reply',
+									buttonId: b.buttonId,
+									displayText: b.displayText,
+								});
+							}
+
+							for (const b of ctaUrls) {
+								combinedButtons.push({
+									buttonType: 'cta_url',
+									displayText: b.displayText,
+									url: b.url,
+									merchantUrl: b.merchantUrl,
+								});
+							}
+
+							if (combinedButtons.length) {
+								cardPayload.Buttons = combinedButtons.map(buildNativeFlowButton);
 							}
 						}
 

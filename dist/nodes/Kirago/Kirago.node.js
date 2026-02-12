@@ -250,8 +250,20 @@ class Kirago {
                 const text = ((_e = this.getNodeParameter('text', i)) !== null && _e !== void 0 ? _e : '').trim();
                 const footer = ((_f = this.getNodeParameter('footer', i)) !== null && _f !== void 0 ? _f : '').trim();
                 const viewOnce = this.getNodeParameter('viewOnce', i);
-                const id = ((_g = this.getNodeParameter('id', i)) !== null && _g !== void 0 ? _g : '').trim();
-                const quotedText = ((_h = this.getNodeParameter('quotedText', i)) !== null && _h !== void 0 ? _h : '').trim();
+                let id = '';
+                let quotedText = '';
+                try {
+                    id = ((_g = this.getNodeParameter('id', i)) !== null && _g !== void 0 ? _g : '').trim();
+                }
+                catch {
+                    id = '';
+                }
+                try {
+                    quotedText = ((_h = this.getNodeParameter('quotedText', i)) !== null && _h !== void 0 ? _h : '').trim();
+                }
+                catch {
+                    quotedText = '';
+                }
                 if (carouselType !== 'global' && carouselType !== 'per_card') {
                     throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Unsupported carousel type: ${carouselType}`);
                 }
@@ -291,11 +303,9 @@ class Kirago {
                 if (carouselType === 'global') {
                     const globalButtonType = (this.getNodeParameter('globalButtonType', i) || 'quick_reply').trim();
                     const globalButtonDisplayText = ((_j = this.getNodeParameter('globalButtonDisplayText', i)) !== null && _j !== void 0 ? _j : '').trim();
-                    const globalButtonId = ((_k = this.getNodeParameter('globalButtonId', i)) !== null && _k !== void 0 ? _k : '').trim();
-                    const globalButtonUrl = ((_l = this.getNodeParameter('globalButtonUrl', i)) !== null && _l !== void 0 ? _l : '').trim();
-                    const globalButtonMerchantUrl = ((_m = this.getNodeParameter('globalButtonMerchantUrl', i)) !== null && _m !== void 0 ? _m : '').trim();
                     if (globalButtonDisplayText) {
                         if (globalButtonType === 'quick_reply') {
+                            const globalButtonId = ((_k = this.getNodeParameter('globalButtonId', i)) !== null && _k !== void 0 ? _k : '').trim();
                             if (!globalButtonId) {
                                 throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Global Button ID is required for Quick Reply');
                             }
@@ -308,6 +318,8 @@ class Kirago {
                             ];
                         }
                         else if (globalButtonType === 'cta_url') {
+                            const globalButtonUrl = ((_l = this.getNodeParameter('globalButtonUrl', i)) !== null && _l !== void 0 ? _l : '').trim();
+                            const globalButtonMerchantUrl = ((_m = this.getNodeParameter('globalButtonMerchantUrl', i)) !== null && _m !== void 0 ? _m : '').trim();
                             if (!globalButtonUrl) {
                                 throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Global Button URL is required for CTA URL');
                             }
@@ -357,7 +369,7 @@ class Kirago {
                 const payload = {
                     Phone: phone,
                     Cards: cards.map((c, cardIndex) => {
-                        var _a, _b, _c, _d, _e, _f;
+                        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
                         const image = ((_a = c.image) !== null && _a !== void 0 ? _a : '').trim();
                         if (!image) {
                             throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Image is required (card ${cardIndex + 1})`);
@@ -373,9 +385,27 @@ class Kirago {
                         if (footer)
                             cardPayload.Footer = footer;
                         if (carouselType === 'per_card') {
-                            const buttons = (_f = (_e = c.buttons) === null || _e === void 0 ? void 0 : _e.button) !== null && _f !== void 0 ? _f : [];
-                            if (buttons.length) {
-                                cardPayload.Buttons = buttons.map(buildNativeFlowButton);
+                            const legacyButtons = (_f = (_e = c.buttons) === null || _e === void 0 ? void 0 : _e.button) !== null && _f !== void 0 ? _f : [];
+                            const quickReplies = (_h = (_g = c.buttons) === null || _g === void 0 ? void 0 : _g.quickReply) !== null && _h !== void 0 ? _h : [];
+                            const ctaUrls = (_k = (_j = c.buttons) === null || _j === void 0 ? void 0 : _j.ctaUrl) !== null && _k !== void 0 ? _k : [];
+                            const combinedButtons = [...legacyButtons];
+                            for (const b of quickReplies) {
+                                combinedButtons.push({
+                                    buttonType: 'quick_reply',
+                                    buttonId: b.buttonId,
+                                    displayText: b.displayText,
+                                });
+                            }
+                            for (const b of ctaUrls) {
+                                combinedButtons.push({
+                                    buttonType: 'cta_url',
+                                    displayText: b.displayText,
+                                    url: b.url,
+                                    merchantUrl: b.merchantUrl,
+                                });
+                            }
+                            if (combinedButtons.length) {
+                                cardPayload.Buttons = combinedButtons.map(buildNativeFlowButton);
                             }
                         }
                         return cardPayload;
