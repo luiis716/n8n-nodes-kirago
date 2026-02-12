@@ -229,7 +229,7 @@ export const sendCarouselDescription: INodeProperties[] = [
 						type: 'string',
 						required: true,
 						default: '',
-						description: 'HTTP(S) URL or data:image/...;base64,<data>',
+						description: 'HTTP(S) URL or data:image/...;base64,&lt;data&gt;',
 					},
 					{
 						displayName: 'Title',
