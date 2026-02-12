@@ -46,7 +46,7 @@ class Kirago {
         };
     }
     async execute() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6;
         const items = this.getInputData();
         const returnData = [];
         const credentials = (await this.getCredentials('kiragoApi'));
@@ -246,15 +246,16 @@ class Kirago {
             }
             if (operation === 'sendCarousel') {
                 const phone = this.getNodeParameter('phone', i);
-                const text = String(this.getNodeParameter('text', i) || '').trim();
-                const footer = String(this.getNodeParameter('footer', i) || '').trim();
+                const text = ((_e = this.getNodeParameter('text', i)) !== null && _e !== void 0 ? _e : '').trim();
+                const footer = ((_f = this.getNodeParameter('footer', i)) !== null && _f !== void 0 ? _f : '').trim();
                 const viewOnce = this.getNodeParameter('viewOnce', i);
-                const id = String(this.getNodeParameter('id', i) || '').trim();
-                const quotedText = String(this.getNodeParameter('quotedText', i) || '').trim();
+                const id = ((_g = this.getNodeParameter('id', i)) !== null && _g !== void 0 ? _g : '').trim();
+                const quotedText = ((_h = this.getNodeParameter('quotedText', i)) !== null && _h !== void 0 ? _h : '').trim();
                 const extra = this.getNodeParameter('additionalFields', i) || {};
                 const buildNativeFlowButton = (b) => {
-                    const buttonType = String(b.buttonType || '').trim();
-                    const displayText = String(b.displayText || '').trim();
+                    var _a, _b, _c, _d, _e;
+                    const buttonType = ((_a = b.buttonType) !== null && _a !== void 0 ? _a : '').trim();
+                    const displayText = ((_b = b.displayText) !== null && _b !== void 0 ? _b : '').trim();
                     if (!displayText) {
                         throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Display Text is required');
                     }
@@ -262,14 +263,14 @@ class Kirago {
                         display_text: displayText,
                     };
                     if (buttonType === 'quick_reply') {
-                        const buttonId = String(b.buttonId || '').trim();
+                        const buttonId = ((_c = b.buttonId) !== null && _c !== void 0 ? _c : '').trim();
                         if (!buttonId)
                             throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Button ID is required for Quick Reply');
                         buttonParams.id = buttonId;
                     }
                     else if (buttonType === 'cta_url') {
-                        const url = String(b.url || '').trim();
-                        const merchantUrl = String(b.merchantUrl || '').trim();
+                        const url = ((_d = b.url) !== null && _d !== void 0 ? _d : '').trim();
+                        const merchantUrl = ((_e = b.merchantUrl) !== null && _e !== void 0 ? _e : '').trim();
                         if (!url)
                             throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'URL is required for CTA URL');
                         buttonParams.url = url;
@@ -284,22 +285,23 @@ class Kirago {
                     };
                 };
                 const cardButtonsRaw = this.getNodeParameter('cardButtons', i) || {};
-                const cardButtons = cardButtonsRaw.button || [];
+                const cardButtons = (_j = cardButtonsRaw.button) !== null && _j !== void 0 ? _j : [];
                 const cardsRaw = this.getNodeParameter('cards', i);
-                const cards = cardsRaw.card || [];
+                const cards = (_k = cardsRaw.card) !== null && _k !== void 0 ? _k : [];
                 if (!cards.length) {
                     throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one card is required');
                 }
                 const payload = {
                     Phone: phone,
                     Cards: cards.map((c, cardIndex) => {
-                        const image = String(c.image || '').trim();
+                        var _a, _b, _c, _d, _e, _f;
+                        const image = ((_a = c.image) !== null && _a !== void 0 ? _a : '').trim();
                         if (!image) {
                             throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Image is required (card ${cardIndex + 1})`);
                         }
-                        const title = String(c.title || '').trim();
-                        const caption = String(c.caption || '').trim();
-                        const footer = String(c.footer || '').trim();
+                        const title = ((_b = c.title) !== null && _b !== void 0 ? _b : '').trim();
+                        const caption = ((_c = c.caption) !== null && _c !== void 0 ? _c : '').trim();
+                        const footer = ((_d = c.footer) !== null && _d !== void 0 ? _d : '').trim();
                         const cardPayload = { Image: image };
                         if (title)
                             cardPayload.Title = title;
@@ -307,7 +309,7 @@ class Kirago {
                             cardPayload.Caption = caption;
                         if (footer)
                             cardPayload.Footer = footer;
-                        const buttons = (c.buttons && c.buttons.button) ? c.buttons.button : [];
+                        const buttons = (_f = (_e = c.buttons) === null || _e === void 0 ? void 0 : _e.button) !== null && _f !== void 0 ? _f : [];
                         if (buttons.length) {
                             cardPayload.Buttons = buttons.map(buildNativeFlowButton);
                         }
@@ -335,10 +337,10 @@ class Kirago {
             if (operation === 'sendList') {
                 const phone = this.getNodeParameter('phone', i);
                 const listMode = this.getNodeParameter('listMode', i) || 'sections';
-                const topText = ((_e = this.getNodeParameter('topText', i)) !== null && _e !== void 0 ? _e : '').trim();
-                const desc = ((_f = this.getNodeParameter('desc', i)) !== null && _f !== void 0 ? _f : '').trim();
-                const buttonText = ((_g = this.getNodeParameter('buttonText', i)) !== null && _g !== void 0 ? _g : '').trim();
-                const footerText = ((_h = this.getNodeParameter('footerText', i)) !== null && _h !== void 0 ? _h : '').trim();
+                const topText = ((_l = this.getNodeParameter('topText', i)) !== null && _l !== void 0 ? _l : '').trim();
+                const desc = ((_m = this.getNodeParameter('desc', i)) !== null && _m !== void 0 ? _m : '').trim();
+                const buttonText = ((_o = this.getNodeParameter('buttonText', i)) !== null && _o !== void 0 ? _o : '').trim();
+                const footerText = ((_p = this.getNodeParameter('footerText', i)) !== null && _p !== void 0 ? _p : '').trim();
                 if (!topText)
                     throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Top Text is required');
                 if (!desc)
@@ -355,7 +357,7 @@ class Kirago {
                     payload.FooterText = footerText;
                 if (listMode === 'sections') {
                     const sectionsRaw = this.getNodeParameter('sections', i);
-                    const sections = (_j = sectionsRaw === null || sectionsRaw === void 0 ? void 0 : sectionsRaw.section) !== null && _j !== void 0 ? _j : [];
+                    const sections = (_q = sectionsRaw === null || sectionsRaw === void 0 ? void 0 : sectionsRaw.section) !== null && _q !== void 0 ? _q : [];
                     if (!sections.length) {
                         throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one section is required');
                     }
@@ -392,7 +394,7 @@ class Kirago {
                 }
                 else if (listMode === 'legacy') {
                     const listRaw = this.getNodeParameter('list', i);
-                    const list = (_k = listRaw === null || listRaw === void 0 ? void 0 : listRaw.row) !== null && _k !== void 0 ? _k : [];
+                    const list = (_r = listRaw === null || listRaw === void 0 ? void 0 : listRaw.row) !== null && _r !== void 0 ? _r : [];
                     if (!list.length) {
                         throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one row is required');
                     }
@@ -419,19 +421,19 @@ class Kirago {
                 continue;
             }
             if (operation === 'sendOrderDetails') {
-                const jid = ((_l = this.getNodeParameter('jid', i)) !== null && _l !== void 0 ? _l : '').trim();
-                const referenceId = ((_m = this.getNodeParameter('referenceId', i)) !== null && _m !== void 0 ? _m : '').trim();
+                const jid = ((_s = this.getNodeParameter('jid', i)) !== null && _s !== void 0 ? _s : '').trim();
+                const referenceId = ((_t = this.getNodeParameter('referenceId', i)) !== null && _t !== void 0 ? _t : '').trim();
                 const total = this.getNodeParameter('total', i);
-                const itemName = ((_o = this.getNodeParameter('itemName', i)) !== null && _o !== void 0 ? _o : '').trim();
+                const itemName = ((_u = this.getNodeParameter('itemName', i)) !== null && _u !== void 0 ? _u : '').trim();
                 const itemQty = this.getNodeParameter('itemQty', i);
-                const merchantName = ((_p = this.getNodeParameter('merchantName', i)) !== null && _p !== void 0 ? _p : '').trim();
-                const pixKey = ((_q = this.getNodeParameter('pixKey', i)) !== null && _q !== void 0 ? _q : '').trim();
+                const merchantName = ((_v = this.getNodeParameter('merchantName', i)) !== null && _v !== void 0 ? _v : '').trim();
+                const pixKey = ((_w = this.getNodeParameter('pixKey', i)) !== null && _w !== void 0 ? _w : '').trim();
                 const pixKeyType = this.getNodeParameter('pixKeyType', i) || 'EVP';
-                const boletoLine = ((_r = this.getNodeParameter('boletoLine', i)) !== null && _r !== void 0 ? _r : '').trim();
-                const pdfHeaderUrl = ((_s = this.getNodeParameter('pdfHeaderUrl', i)) !== null && _s !== void 0 ? _s : '').trim();
-                const body = ((_t = this.getNodeParameter('body', i)) !== null && _t !== void 0 ? _t : '').trim();
-                const footer = ((_u = this.getNodeParameter('footer', i)) !== null && _u !== void 0 ? _u : '').trim();
-                const referral = ((_v = this.getNodeParameter('referral', i)) !== null && _v !== void 0 ? _v : '').trim();
+                const boletoLine = ((_x = this.getNodeParameter('boletoLine', i)) !== null && _x !== void 0 ? _x : '').trim();
+                const pdfHeaderUrl = ((_y = this.getNodeParameter('pdfHeaderUrl', i)) !== null && _y !== void 0 ? _y : '').trim();
+                const body = ((_z = this.getNodeParameter('body', i)) !== null && _z !== void 0 ? _z : '').trim();
+                const footer = ((_0 = this.getNodeParameter('footer', i)) !== null && _0 !== void 0 ? _0 : '').trim();
+                const referral = ((_1 = this.getNodeParameter('referral', i)) !== null && _1 !== void 0 ? _1 : '').trim();
                 const sharePaymentStatus = this.getNodeParameter('sharePaymentStatus', i);
                 if (!jid)
                     throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'JID is required');
@@ -480,12 +482,12 @@ class Kirago {
             }
             if (operation === 'sendPixPayment') {
                 const phone = this.getNodeParameter('phone', i);
-                const title = ((_w = this.getNodeParameter('title', i)) !== null && _w !== void 0 ? _w : '').trim();
-                const body = ((_x = this.getNodeParameter('body', i)) !== null && _x !== void 0 ? _x : '').trim();
+                const title = ((_2 = this.getNodeParameter('title', i)) !== null && _2 !== void 0 ? _2 : '').trim();
+                const body = ((_3 = this.getNodeParameter('body', i)) !== null && _3 !== void 0 ? _3 : '').trim();
                 const pixPayment = this.getNodeParameter('pixPayment', i) || {};
-                const merchantName = ((_y = pixPayment.merchantName) !== null && _y !== void 0 ? _y : '').trim();
-                const key = ((_z = pixPayment.key) !== null && _z !== void 0 ? _z : '').trim();
-                const keyType = ((_0 = pixPayment.keyType) !== null && _0 !== void 0 ? _0 : '').trim();
+                const merchantName = ((_4 = pixPayment.merchantName) !== null && _4 !== void 0 ? _4 : '').trim();
+                const key = ((_5 = pixPayment.key) !== null && _5 !== void 0 ? _5 : '').trim();
+                const keyType = ((_6 = pixPayment.keyType) !== null && _6 !== void 0 ? _6 : '').trim();
                 if (!title)
                     throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Title is required');
                 if (!body)
