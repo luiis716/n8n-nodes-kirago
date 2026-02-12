@@ -167,12 +167,22 @@ export class Kirago implements INodeType {
 
 			if (operation === 'sendButtons') {
 				const phone = this.getNodeParameter('phone', i) as string;
+				const title = ((this.getNodeParameter('title', i) as string) ?? '').trim();
 				const bodyText = this.getNodeParameter('body', i) as string;
 				const footerText = this.getNodeParameter('footer', i) as string;
 				const headerType = this.getNodeParameter('headerType', i) as string;
-				const headerMediaUrl = this.getNodeParameter('headerMediaUrl', i) as string;
+				const headerMediaUrl = ((this.getNodeParameter('headerMediaUrl', i) as string) ?? '').trim();
+				const headerThumbnailUrl = ((this.getNodeParameter('headerThumbnailUrl', i) as string) ?? '').trim();
 				const buttonsRaw = this.getNodeParameter('buttons', i) as {
-					button?: Array<{ buttonType: string; buttonId: string; displayText: string }>;
+					button?: Array<{
+						buttonType: string;
+						buttonId?: string;
+						displayText: string;
+						url?: string;
+						merchantUrl?: string;
+						copyCode?: string;
+						phoneNumber?: string;
+					}>;
 				};
 				const buttons = buttonsRaw?.button ?? [];
 
@@ -191,22 +201,60 @@ export class Kirago implements INodeType {
 				const payload: Record<string, unknown> = {
 					phone,
 					body: bodyText,
-					buttons: buttons.map((b) => ({
-						name: b.buttonType,
-						buttonParamsJson: {
+					buttons: buttons.map((b) => {
+						const baseParams: Record<string, unknown> = {
 							display_text: b.displayText,
-							id: b.buttonId,
-						},
-					})),
+						};
+
+						if (b.buttonType === 'quick_reply') {
+							const buttonId = (b.buttonId ?? '').trim();
+							if (!buttonId) {
+								throw new NodeOperationError(this.getNode(), 'Button ID is required for Quick Reply');
+							}
+							baseParams.id = buttonId;
+						} else if (b.buttonType === 'cta_url') {
+							const url = (b.url ?? '').trim();
+							const merchantUrl = (b.merchantUrl ?? '').trim();
+							if (!url) {
+								throw new NodeOperationError(this.getNode(), 'URL is required for CTA URL');
+							}
+							baseParams.url = url;
+							baseParams.merchant_url = merchantUrl || url;
+						} else if (b.buttonType === 'cta_copy') {
+							const copyCode = (b.copyCode ?? '').trim();
+							if (!copyCode) {
+								throw new NodeOperationError(this.getNode(), 'Copy Code is required for CTA Copy');
+							}
+							baseParams.copy_code = copyCode;
+						} else if (b.buttonType === 'cta_call') {
+							const phoneNumber = (b.phoneNumber ?? '').trim();
+							if (!phoneNumber) {
+								throw new NodeOperationError(this.getNode(), 'Phone Number is required for CTA Call');
+							}
+							baseParams.phoneNumber = phoneNumber;
+						} else {
+							throw new NodeOperationError(this.getNode(), `Unsupported button type: ${b.buttonType}`);
+						}
+
+						return {
+							name: b.buttonType,
+							buttonParamsJson: baseParams,
+						};
+					}),
 				};
 
+				if (title) payload.title = title;
 				if (footerText) payload.footer = footerText;
 
 				if (headerType && headerType !== 'none') {
-					payload.header = {
+					const header: Record<string, unknown> = {
 						type: headerType,
 						media_url: headerMediaUrl,
 					};
+					if (headerType === 'video' && headerThumbnailUrl) {
+						header.thumbnail_url = headerThumbnailUrl;
+					}
+					payload.header = header;
 				}
 
 				const response = await post('/chat/send/buttons', payload);

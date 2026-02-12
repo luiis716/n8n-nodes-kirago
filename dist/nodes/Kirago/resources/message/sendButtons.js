@@ -12,6 +12,9 @@ const headerTypeOptions = [
 ];
 const buttonTypeOptions = [
     { name: 'Quick Reply', value: 'quick_reply' },
+    { name: 'CTA URL', value: 'cta_url' },
+    { name: 'CTA Copy', value: 'cta_copy' },
+    { name: 'CTA Call', value: 'cta_call' },
 ];
 exports.sendButtonsDescription = [
     {
@@ -21,6 +24,14 @@ exports.sendButtonsDescription = [
         required: true,
         default: '',
         description: 'Número WhatsApp em formato internacional, ex.: 5511999999999',
+        displayOptions: { show: showOnlyForSendButtons },
+    },
+    {
+        displayName: 'Title',
+        name: 'title',
+        type: 'string',
+        default: '',
+        description: 'Título opcional exibido acima do corpo da mensagem',
         displayOptions: { show: showOnlyForSendButtons },
     },
     {
@@ -55,12 +66,26 @@ exports.sendButtonsDescription = [
         displayName: 'Header Media URL',
         name: 'headerMediaUrl',
         type: 'string',
+        required: true,
         default: '',
         description: 'URL do vídeo ou da imagem exibida no cabeçalho (obrigatório para Image/Video)',
         displayOptions: {
             show: {
                 ...showOnlyForSendButtons,
                 headerType: ['image', 'video'],
+            },
+        },
+    },
+    {
+        displayName: 'Header Thumbnail URL',
+        name: 'headerThumbnailUrl',
+        type: 'string',
+        default: '',
+        description: 'Miniatura do vídeo (recomendado para evitar erro no iOS)',
+        displayOptions: {
+            show: {
+                ...showOnlyForSendButtons,
+                headerType: ['video'],
             },
         },
     },
@@ -93,6 +118,11 @@ exports.sendButtonsDescription = [
                         required: true,
                         default: '',
                         description: 'Identificador que será enviado quando o botão for clicado',
+                        displayOptions: {
+                            show: {
+                                buttonType: ['quick_reply'],
+                            },
+                        },
                     },
                     {
                         displayName: 'Display Text',
@@ -102,6 +132,58 @@ exports.sendButtonsDescription = [
                         typeOptions: { rows: 2 },
                         default: '',
                         description: 'Texto exibido no botão',
+                    },
+                    {
+                        displayName: 'URL',
+                        name: 'url',
+                        type: 'string',
+                        required: true,
+                        default: '',
+                        description: 'URL do botão (CTA URL)',
+                        displayOptions: {
+                            show: {
+                                buttonType: ['cta_url'],
+                            },
+                        },
+                    },
+                    {
+                        displayName: 'Merchant URL',
+                        name: 'merchantUrl',
+                        type: 'string',
+                        default: '',
+                        description: 'URL do merchant (se vazio, usa o mesmo valor de URL)',
+                        displayOptions: {
+                            show: {
+                                buttonType: ['cta_url'],
+                            },
+                        },
+                    },
+                    {
+                        displayName: 'Copy Code',
+                        name: 'copyCode',
+                        type: 'string',
+                        required: true,
+                        typeOptions: { rows: 3 },
+                        default: '',
+                        description: 'Código para copiar (CTA Copy)',
+                        displayOptions: {
+                            show: {
+                                buttonType: ['cta_copy'],
+                            },
+                        },
+                    },
+                    {
+                        displayName: 'Phone Number',
+                        name: 'phoneNumber',
+                        type: 'string',
+                        required: true,
+                        default: '',
+                        description: 'Telefone para ligar (CTA Call)',
+                        displayOptions: {
+                            show: {
+                                buttonType: ['cta_call'],
+                            },
+                        },
                     },
                 ],
             },

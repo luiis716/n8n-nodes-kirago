@@ -46,7 +46,7 @@ class Kirago {
         };
     }
     async execute() {
-        var _a;
+        var _a, _b, _c, _d;
         const items = this.getInputData();
         const returnData = [];
         const credentials = (await this.getCredentials('kiragoApi'));
@@ -153,12 +153,14 @@ class Kirago {
             }
             if (operation === 'sendButtons') {
                 const phone = this.getNodeParameter('phone', i);
+                const title = ((_a = this.getNodeParameter('title', i)) !== null && _a !== void 0 ? _a : '').trim();
                 const bodyText = this.getNodeParameter('body', i);
                 const footerText = this.getNodeParameter('footer', i);
                 const headerType = this.getNodeParameter('headerType', i);
-                const headerMediaUrl = this.getNodeParameter('headerMediaUrl', i);
+                const headerMediaUrl = ((_b = this.getNodeParameter('headerMediaUrl', i)) !== null && _b !== void 0 ? _b : '').trim();
+                const headerThumbnailUrl = ((_c = this.getNodeParameter('headerThumbnailUrl', i)) !== null && _c !== void 0 ? _c : '').trim();
                 const buttonsRaw = this.getNodeParameter('buttons', i);
-                const buttons = (_a = buttonsRaw === null || buttonsRaw === void 0 ? void 0 : buttonsRaw.button) !== null && _a !== void 0 ? _a : [];
+                const buttons = (_d = buttonsRaw === null || buttonsRaw === void 0 ? void 0 : buttonsRaw.button) !== null && _d !== void 0 ? _d : [];
                 if (!buttons.length) {
                     throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one button is required');
                 }
@@ -171,21 +173,63 @@ class Kirago {
                 const payload = {
                     phone,
                     body: bodyText,
-                    buttons: buttons.map((b) => ({
-                        name: b.buttonType,
-                        buttonParamsJson: {
+                    buttons: buttons.map((b) => {
+                        var _a, _b, _c, _d, _e;
+                        const baseParams = {
                             display_text: b.displayText,
-                            id: b.buttonId,
-                        },
-                    })),
+                        };
+                        if (b.buttonType === 'quick_reply') {
+                            const buttonId = ((_a = b.buttonId) !== null && _a !== void 0 ? _a : '').trim();
+                            if (!buttonId) {
+                                throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Button ID is required for Quick Reply');
+                            }
+                            baseParams.id = buttonId;
+                        }
+                        else if (b.buttonType === 'cta_url') {
+                            const url = ((_b = b.url) !== null && _b !== void 0 ? _b : '').trim();
+                            const merchantUrl = ((_c = b.merchantUrl) !== null && _c !== void 0 ? _c : '').trim();
+                            if (!url) {
+                                throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'URL is required for CTA URL');
+                            }
+                            baseParams.url = url;
+                            baseParams.merchant_url = merchantUrl || url;
+                        }
+                        else if (b.buttonType === 'cta_copy') {
+                            const copyCode = ((_d = b.copyCode) !== null && _d !== void 0 ? _d : '').trim();
+                            if (!copyCode) {
+                                throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Copy Code is required for CTA Copy');
+                            }
+                            baseParams.copy_code = copyCode;
+                        }
+                        else if (b.buttonType === 'cta_call') {
+                            const phoneNumber = ((_e = b.phoneNumber) !== null && _e !== void 0 ? _e : '').trim();
+                            if (!phoneNumber) {
+                                throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Phone Number is required for CTA Call');
+                            }
+                            baseParams.phoneNumber = phoneNumber;
+                        }
+                        else {
+                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Unsupported button type: ${b.buttonType}`);
+                        }
+                        return {
+                            name: b.buttonType,
+                            buttonParamsJson: baseParams,
+                        };
+                    }),
                 };
+                if (title)
+                    payload.title = title;
                 if (footerText)
                     payload.footer = footerText;
                 if (headerType && headerType !== 'none') {
-                    payload.header = {
+                    const header = {
                         type: headerType,
                         media_url: headerMediaUrl,
                     };
+                    if (headerType === 'video' && headerThumbnailUrl) {
+                        header.thumbnail_url = headerThumbnailUrl;
+                    }
+                    payload.header = header;
                 }
                 const response = await post('/chat/send/buttons', payload);
                 returnData.push({ json: response });
