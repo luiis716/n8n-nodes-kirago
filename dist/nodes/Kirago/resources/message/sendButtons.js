@@ -105,13 +105,6 @@ exports.sendButtonsDescription = [
                 name: 'button',
                 values: [
                     {
-                        displayName: 'Button Type',
-                        name: 'buttonType',
-                        type: 'options',
-                        options: buttonTypeOptions,
-                        default: 'quick_reply',
-                    },
-                    {
                         displayName: 'Button ID',
                         name: 'buttonId',
                         type: 'string',
@@ -125,38 +118,11 @@ exports.sendButtonsDescription = [
                         },
                     },
                     {
-                        displayName: 'Display Text',
-                        name: 'displayText',
-                        type: 'string',
-                        required: true,
-                        typeOptions: { rows: 2 },
-                        default: '',
-                        description: 'Texto exibido no botão',
-                    },
-                    {
-                        displayName: 'URL',
-                        name: 'url',
-                        type: 'string',
-                        required: true,
-                        default: '',
-                        description: 'URL do botão (CTA URL)',
-                        displayOptions: {
-                            show: {
-                                buttonType: ['cta_url'],
-                            },
-                        },
-                    },
-                    {
-                        displayName: 'Merchant URL',
-                        name: 'merchantUrl',
-                        type: 'string',
-                        default: '',
-                        description: 'URL do merchant (se vazio, usa o mesmo valor de URL)',
-                        displayOptions: {
-                            show: {
-                                buttonType: ['cta_url'],
-                            },
-                        },
+                        displayName: 'Button Type',
+                        name: 'buttonType',
+                        type: 'options',
+                        options: buttonTypeOptions,
+                        default: 'quick_reply',
                     },
                     {
                         displayName: 'Copy Code',
@@ -173,6 +139,27 @@ exports.sendButtonsDescription = [
                         },
                     },
                     {
+                        displayName: 'Display Text',
+                        name: 'displayText',
+                        type: 'string',
+                        required: true,
+                        typeOptions: { rows: 2 },
+                        default: '',
+                        description: 'Texto exibido no botão',
+                    },
+                    {
+                        displayName: 'Merchant URL',
+                        name: 'merchantUrl',
+                        type: 'string',
+                        default: '',
+                        description: 'URL do merchant (se vazio, usa o mesmo valor de URL)',
+                        displayOptions: {
+                            show: {
+                                buttonType: ['cta_url'],
+                            },
+                        },
+                    },
+                    {
                         displayName: 'Phone Number',
                         name: 'phoneNumber',
                         type: 'string',
@@ -182,6 +169,19 @@ exports.sendButtonsDescription = [
                         displayOptions: {
                             show: {
                                 buttonType: ['cta_call'],
+                            },
+                        },
+                    },
+                    {
+                        displayName: 'URL',
+                        name: 'url',
+                        type: 'string',
+                        required: true,
+                        default: '',
+                        description: 'URL do botão (CTA URL)',
+                        displayOptions: {
+                            show: {
+                                buttonType: ['cta_url'],
                             },
                         },
                     },
