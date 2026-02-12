@@ -39,3 +39,8 @@ criar tag no git
 publicar no npm
 
 criar release no GitHub (automático se tiver GITHUB_TOKEN, senão “web-based”)
+
+
+
+
+

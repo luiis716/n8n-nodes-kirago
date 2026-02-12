@@ -151,25 +151,31 @@ class Kirago {
                 returnData.push({ json: response });
                 continue;
             }
-            if (operation === 'sendButtons') {
-                const phone = this.getNodeParameter('phone', i);
-                const title = ((_a = this.getNodeParameter('title', i)) !== null && _a !== void 0 ? _a : '').trim();
-                const bodyText = this.getNodeParameter('body', i);
-                const footerText = this.getNodeParameter('footer', i);
-                const headerType = this.getNodeParameter('headerType', i);
-                const headerMediaUrl = ((_b = this.getNodeParameter('headerMediaUrl', i)) !== null && _b !== void 0 ? _b : '').trim();
-                const headerThumbnailUrl = ((_c = this.getNodeParameter('headerThumbnailUrl', i)) !== null && _c !== void 0 ? _c : '').trim();
-                const buttonsRaw = this.getNodeParameter('buttons', i);
-                const buttons = (_d = buttonsRaw === null || buttonsRaw === void 0 ? void 0 : buttonsRaw.button) !== null && _d !== void 0 ? _d : [];
-                if (!buttons.length) {
-                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one button is required');
-                }
+	            if (operation === 'sendButtons') {
+	                const phone = this.getNodeParameter('phone', i);
+	                const title = ((_a = this.getNodeParameter('title', i)) !== null && _a !== void 0 ? _a : '').trim();
+	                const bodyText = this.getNodeParameter('body', i);
+	                const footerText = this.getNodeParameter('footer', i);
+	                const headerType = this.getNodeParameter('headerType', i) || 'none';
+	                let headerMediaUrl = '';
+	                let headerThumbnailUrl = '';
+	                if (headerType !== 'none') {
+	                    headerMediaUrl = (((_b = this.getNodeParameter('headerMediaUrl', i)) !== null && _b !== void 0 ? _b : '')).trim();
+	                    if (headerType === 'video') {
+	                        headerThumbnailUrl = (((_c = this.getNodeParameter('headerThumbnailUrl', i)) !== null && _c !== void 0 ? _c : '')).trim();
+	                    }
+	                }
+	                const buttonsRaw = this.getNodeParameter('buttons', i);
+	                const buttons = (_d = buttonsRaw === null || buttonsRaw === void 0 ? void 0 : buttonsRaw.button) !== null && _d !== void 0 ? _d : [];
+	                if (!buttons.length) {
+	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one button is required');
+	                }
                 if (headerType && headerType !== 'none' && headerType !== 'image' && headerType !== 'video') {
                     throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Unsupported header type: ${headerType}`);
                 }
-                if (headerType && headerType !== 'none' && !headerMediaUrl) {
-                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Header Media URL is required when Header Type is Image/Video');
-                }
+	                if (headerType !== 'none' && !headerMediaUrl) {
+	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Header Media URL is required when Header Type is Image/Video');
+	                }
                 const payload = {
                     phone,
                     body: bodyText,

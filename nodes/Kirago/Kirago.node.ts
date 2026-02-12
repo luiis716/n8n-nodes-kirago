@@ -165,19 +165,26 @@ export class Kirago implements INodeType {
 				continue;
 			}
 
-			if (operation === 'sendButtons') {
-				const phone = this.getNodeParameter('phone', i) as string;
-				const title = ((this.getNodeParameter('title', i) as string) ?? '').trim();
-				const bodyText = this.getNodeParameter('body', i) as string;
-				const footerText = this.getNodeParameter('footer', i) as string;
-				const headerType = this.getNodeParameter('headerType', i) as string;
-				const headerMediaUrl = ((this.getNodeParameter('headerMediaUrl', i) as string) ?? '').trim();
-				const headerThumbnailUrl = ((this.getNodeParameter('headerThumbnailUrl', i) as string) ?? '').trim();
-				const buttonsRaw = this.getNodeParameter('buttons', i) as {
-					button?: Array<{
-						buttonType: string;
-						buttonId?: string;
-						displayText: string;
+				if (operation === 'sendButtons') {
+					const phone = this.getNodeParameter('phone', i) as string;
+					const title = ((this.getNodeParameter('title', i) as string) ?? '').trim();
+					const bodyText = this.getNodeParameter('body', i) as string;
+					const footerText = this.getNodeParameter('footer', i) as string;
+					const headerType = (this.getNodeParameter('headerType', i) as string) || 'none';
+					let headerMediaUrl = '';
+					let headerThumbnailUrl = '';
+
+					if (headerType !== 'none') {
+						headerMediaUrl = ((this.getNodeParameter('headerMediaUrl', i) as string) ?? '').trim();
+						if (headerType === 'video') {
+							headerThumbnailUrl = ((this.getNodeParameter('headerThumbnailUrl', i) as string) ?? '').trim();
+						}
+					}
+					const buttonsRaw = this.getNodeParameter('buttons', i) as {
+						button?: Array<{
+							buttonType: string;
+							buttonId?: string;
+							displayText: string;
 						url?: string;
 						merchantUrl?: string;
 						copyCode?: string;
@@ -190,13 +197,13 @@ export class Kirago implements INodeType {
 					throw new NodeOperationError(this.getNode(), 'At least one button is required');
 				}
 
-				if (headerType && headerType !== 'none' && headerType !== 'image' && headerType !== 'video') {
-					throw new NodeOperationError(this.getNode(), `Unsupported header type: ${headerType}`);
-				}
+					if (headerType && headerType !== 'none' && headerType !== 'image' && headerType !== 'video') {
+						throw new NodeOperationError(this.getNode(), `Unsupported header type: ${headerType}`);
+					}
 
-				if (headerType && headerType !== 'none' && !headerMediaUrl) {
-					throw new NodeOperationError(this.getNode(), 'Header Media URL is required when Header Type is Image/Video');
-				}
+					if (headerType !== 'none' && !headerMediaUrl) {
+						throw new NodeOperationError(this.getNode(), 'Header Media URL is required when Header Type is Image/Video');
+					}
 
 				const payload: Record<string, unknown> = {
 					phone,
