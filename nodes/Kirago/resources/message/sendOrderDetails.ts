@@ -130,8 +130,7 @@ export const sendOrderDetailsDescription: INodeProperties[] = [
 		name: 'sharePaymentStatus',
 		type: 'boolean',
 		default: false,
-		description: 'Compartilhar status do pagamento',
+		description: 'Whether to share payment status',
 		displayOptions: { show: showOnlyForSendOrderDetails },
 	},
 ];
-
