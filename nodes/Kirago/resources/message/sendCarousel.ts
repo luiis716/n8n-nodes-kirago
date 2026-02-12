@@ -145,80 +145,6 @@ export const sendCarouselDescription: INodeProperties[] = [
 		displayOptions: { show: showOnlyForSendCarousel },
 	},
 	{
-		displayName: 'Legacy Card Buttons',
-		name: 'cardButtons',
-		type: 'fixedCollection',
-		placeholder: 'Add button',
-		typeOptions: { multipleValues: true, maxValue: 1 },
-		default: {},
-		description: 'Campo legado: botão global do carrossel',
-		displayOptions: {
-			show: {
-				...showOnlyForSendCarousel,
-				carouselType: ['global'],
-				useLegacyCardButtons: [true],
-			},
-		},
-		options: [
-			{
-				displayName: 'Button',
-				name: 'button',
-				values: [
-					{
-						displayName: 'Button ID',
-						name: 'buttonId',
-						type: 'string',
-						required: true,
-						default: '',
-						displayOptions: {
-							show: {
-								buttonType: ['quick_reply'],
-							},
-						},
-					},
-					{
-						displayName: 'Button Type',
-						name: 'buttonType',
-						type: 'options',
-						options: buttonTypeOptions,
-						default: 'quick_reply',
-					},
-					{
-						displayName: 'Display Text',
-						name: 'displayText',
-						type: 'string',
-						required: true,
-						default: '',
-					},
-					{
-						displayName: 'Merchant URL',
-						name: 'merchantUrl',
-						type: 'string',
-						default: '',
-						description: 'URL do merchant (se vazio, usa o mesmo valor de URL)',
-						displayOptions: {
-							show: {
-								buttonType: ['cta_url'],
-							},
-						},
-					},
-					{
-						displayName: 'URL',
-						name: 'url',
-						type: 'string',
-						required: true,
-						default: '',
-						displayOptions: {
-							show: {
-								buttonType: ['cta_url'],
-							},
-						},
-					},
-				],
-			},
-		],
-	},
-	{
 		displayName: 'Cards',
 		name: 'cardsGlobal',
 		type: 'fixedCollection',
@@ -308,11 +234,7 @@ export const sendCarouselDescription: INodeProperties[] = [
 										type: 'string',
 										required: true,
 										default: '',
-										displayOptions: {
-											show: {
-												buttonType: ['quick_reply'],
-											},
-										},
+										description: 'Obrigatório para Quick Reply (ignorado para CTA URL)',
 									},
 									{
 										displayName: 'Button Type',
@@ -334,11 +256,6 @@ export const sendCarouselDescription: INodeProperties[] = [
 										type: 'string',
 										default: '',
 										description: 'URL do merchant (se vazio, usa o mesmo valor de URL)',
-										displayOptions: {
-											show: {
-												buttonType: ['cta_url'],
-											},
-										},
 									},
 									{
 										displayName: 'URL',
@@ -346,11 +263,7 @@ export const sendCarouselDescription: INodeProperties[] = [
 										type: 'string',
 										required: true,
 										default: '',
-										displayOptions: {
-											show: {
-												buttonType: ['cta_url'],
-											},
-										},
+										description: 'Obrigatório para CTA URL (ignorado para Quick Reply)',
 									},
 								],
 							},

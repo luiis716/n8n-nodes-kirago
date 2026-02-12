@@ -368,16 +368,20 @@ export class Kirago implements INodeType {
 							throw new NodeOperationError(this.getNode(), `Unsupported global button type: ${globalButtonType}`);
 						}
 					} else {
-						const cardButtonsRaw = (this.getNodeParameter('cardButtons', i) as {
-							button?: Array<{
-								buttonType: string;
-								buttonId?: string;
-								displayText: string;
-								url?: string;
-								merchantUrl?: string;
-							}>;
-						}) || {};
-						cardButtons = cardButtonsRaw.button ?? [];
+						try {
+							const cardButtonsRaw = (this.getNodeParameter('cardButtons', i) as {
+								button?: Array<{
+									buttonType: string;
+									buttonId?: string;
+									displayText: string;
+									url?: string;
+									merchantUrl?: string;
+								}>;
+							}) || {};
+							cardButtons = cardButtonsRaw.button ?? [];
+						} catch {
+							cardButtons = [];
+						}
 					}
 				}
 

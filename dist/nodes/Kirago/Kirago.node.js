@@ -325,8 +325,13 @@ class Kirago {
                         }
                     }
                     else {
-                        const cardButtonsRaw = this.getNodeParameter('cardButtons', i) || {};
-                        cardButtons = (_o = cardButtonsRaw.button) !== null && _o !== void 0 ? _o : [];
+                        try {
+                            const cardButtonsRaw = this.getNodeParameter('cardButtons', i) || {};
+                            cardButtons = (_o = cardButtonsRaw.button) !== null && _o !== void 0 ? _o : [];
+                        }
+                        catch {
+                            cardButtons = [];
+                        }
                     }
                 }
                 const cardsParamName = carouselType === 'global' ? 'cardsGlobal' : 'cardsPerCard';
