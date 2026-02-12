@@ -35,6 +35,75 @@ export const sendCarouselDescription: INodeProperties[] = [
 		displayOptions: { show: showOnlyForSendCarousel },
 	},
 	{
+		displayName: 'Global Button Type',
+		name: 'globalButtonType',
+		type: 'options',
+		options: buttonTypeOptions,
+		default: 'quick_reply',
+		description: 'Tipo do botão global (apenas 1)',
+		displayOptions: {
+			show: {
+				...showOnlyForSendCarousel,
+				carouselType: ['global'],
+			},
+		},
+	},
+	{
+		displayName: 'Global Button Display Text',
+		name: 'globalButtonDisplayText',
+		type: 'string',
+		default: '',
+		description: 'Texto do botão global (se vazio, envia sem botão global)',
+		displayOptions: {
+			show: {
+				...showOnlyForSendCarousel,
+				carouselType: ['global'],
+			},
+		},
+	},
+	{
+		displayName: 'Global Button ID',
+		name: 'globalButtonId',
+		type: 'string',
+		default: '',
+		description: 'ID do botão global (Quick Reply)',
+		displayOptions: {
+			show: {
+				...showOnlyForSendCarousel,
+				carouselType: ['global'],
+				globalButtonType: ['quick_reply'],
+			},
+		},
+	},
+	{
+		displayName: 'Global Button URL',
+		name: 'globalButtonUrl',
+		type: 'string',
+		default: '',
+		description: 'URL do botão global (CTA URL)',
+		displayOptions: {
+			show: {
+				...showOnlyForSendCarousel,
+				carouselType: ['global'],
+				globalButtonType: ['cta_url'],
+			},
+		},
+	},
+	{
+		displayName: 'Global Button Merchant URL',
+		name: 'globalButtonMerchantUrl',
+		type: 'string',
+		default: '',
+		description: 'Merchant URL do botão global (se vazio, usa a mesma URL)',
+		displayOptions: {
+			show: {
+				...showOnlyForSendCarousel,
+				carouselType: ['global'],
+				globalButtonType: ['cta_url'],
+			},
+		},
+	},
+	{
 		displayName: 'Text',
 		name: 'text',
 		type: 'string',
@@ -76,17 +145,31 @@ export const sendCarouselDescription: INodeProperties[] = [
 		displayOptions: { show: showOnlyForSendCarousel },
 	},
 	{
-		displayName: 'Card Buttons',
+		displayName: 'Use Legacy Global Button (CardButtons)',
+		name: 'useLegacyCardButtons',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to show legacy CardButtons input',
+		displayOptions: {
+			show: {
+				...showOnlyForSendCarousel,
+				carouselType: ['global'],
+			},
+		},
+	},
+	{
+		displayName: 'Legacy Card Buttons',
 		name: 'cardButtons',
 		type: 'fixedCollection',
 		placeholder: 'Add button',
 		typeOptions: { multipleValues: true, maxValue: 1 },
 		default: {},
-		description: 'Botão global do carrossel (máximo 1)',
+		description: 'Campo legado: botão global do carrossel',
 		displayOptions: {
 			show: {
 				...showOnlyForSendCarousel,
 				carouselType: ['global'],
+				useLegacyCardButtons: [true],
 			},
 		},
 		options: [

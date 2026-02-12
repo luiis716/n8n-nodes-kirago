@@ -335,16 +335,51 @@ export class Kirago implements INodeType {
 					merchantUrl?: string;
 				}> = [];
 				if (carouselType === 'global') {
-					const cardButtonsRaw = (this.getNodeParameter('cardButtons', i) as {
-						button?: Array<{
-							buttonType: string;
-							buttonId?: string;
-							displayText: string;
-							url?: string;
-							merchantUrl?: string;
-						}>;
-					}) || {};
-					cardButtons = cardButtonsRaw.button ?? [];
+					const globalButtonType = ((this.getNodeParameter('globalButtonType', i) as string) || 'quick_reply').trim();
+					const globalButtonDisplayText = ((this.getNodeParameter('globalButtonDisplayText', i) as string) ?? '').trim();
+					const globalButtonId = ((this.getNodeParameter('globalButtonId', i) as string) ?? '').trim();
+					const globalButtonUrl = ((this.getNodeParameter('globalButtonUrl', i) as string) ?? '').trim();
+					const globalButtonMerchantUrl = ((this.getNodeParameter('globalButtonMerchantUrl', i) as string) ?? '').trim();
+
+					if (globalButtonDisplayText) {
+						if (globalButtonType === 'quick_reply') {
+							if (!globalButtonId) {
+								throw new NodeOperationError(this.getNode(), 'Global Button ID is required for Quick Reply');
+							}
+							cardButtons = [
+								{
+									buttonType: 'quick_reply',
+									buttonId: globalButtonId,
+									displayText: globalButtonDisplayText,
+								},
+							];
+						} else if (globalButtonType === 'cta_url') {
+							if (!globalButtonUrl) {
+								throw new NodeOperationError(this.getNode(), 'Global Button URL is required for CTA URL');
+							}
+							cardButtons = [
+								{
+									buttonType: 'cta_url',
+									displayText: globalButtonDisplayText,
+									url: globalButtonUrl,
+									merchantUrl: globalButtonMerchantUrl || globalButtonUrl,
+								},
+							];
+						} else {
+							throw new NodeOperationError(this.getNode(), `Unsupported global button type: ${globalButtonType}`);
+						}
+					} else {
+						const cardButtonsRaw = (this.getNodeParameter('cardButtons', i) as {
+							button?: Array<{
+								buttonType: string;
+								buttonId?: string;
+								displayText: string;
+								url?: string;
+								merchantUrl?: string;
+							}>;
+						}) || {};
+						cardButtons = cardButtonsRaw.button ?? [];
+					}
 				}
 
 				const cardsParamName = carouselType === 'global' ? 'cardsGlobal' : 'cardsPerCard';
