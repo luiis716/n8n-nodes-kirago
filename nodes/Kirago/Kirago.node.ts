@@ -277,12 +277,17 @@ export class Kirago implements INodeType {
 
 			if (operation === 'sendCarousel') {
 				const phone = this.getNodeParameter('phone', i) as string;
+				const carouselType = (this.getNodeParameter('carouselType', i) as string) || 'global';
 				const text = ((this.getNodeParameter('text', i) as string) ?? '').trim();
 				const footer = ((this.getNodeParameter('footer', i) as string) ?? '').trim();
 				const viewOnce = this.getNodeParameter('viewOnce', i) as boolean;
 				const id = ((this.getNodeParameter('id', i) as string) ?? '').trim();
 				const quotedText = ((this.getNodeParameter('quotedText', i) as string) ?? '').trim();
 				const extra = (this.getNodeParameter('additionalFields', i) as Record<string, unknown>) || {};
+
+				if (carouselType !== 'global' && carouselType !== 'per_card') {
+					throw new NodeOperationError(this.getNode(), `Unsupported carousel type: ${carouselType}`);
+				}
 
 				const buildNativeFlowButton = (b: {
 					buttonType: string;
@@ -322,16 +327,25 @@ export class Kirago implements INodeType {
 					};
 				};
 
-				const cardButtonsRaw = (this.getNodeParameter('cardButtons', i) as {
-					button?: Array<{
-						buttonType: string;
-						buttonId?: string;
-						displayText: string;
-						url?: string;
-						merchantUrl?: string;
-					}>;
-				}) || {};
-				const cardButtons = cardButtonsRaw.button ?? [];
+				let cardButtons: Array<{
+					buttonType: string;
+					buttonId?: string;
+					displayText: string;
+					url?: string;
+					merchantUrl?: string;
+				}> = [];
+				if (carouselType === 'global') {
+					const cardButtonsRaw = (this.getNodeParameter('cardButtons', i) as {
+						button?: Array<{
+							buttonType: string;
+							buttonId?: string;
+							displayText: string;
+							url?: string;
+							merchantUrl?: string;
+						}>;
+					}) || {};
+					cardButtons = cardButtonsRaw.button ?? [];
+				}
 
 				const cardsRaw = this.getNodeParameter('cards', i) as {
 					card?: Array<{
@@ -373,9 +387,11 @@ export class Kirago implements INodeType {
 						if (caption) cardPayload.Caption = caption;
 						if (footer) cardPayload.Footer = footer;
 
-						const buttons = c.buttons?.button ?? [];
-						if (buttons.length) {
-							cardPayload.Buttons = buttons.map(buildNativeFlowButton);
+						if (carouselType === 'per_card') {
+							const buttons = c.buttons?.button ?? [];
+							if (buttons.length) {
+								cardPayload.Buttons = buttons.map(buildNativeFlowButton);
+							}
 						}
 
 						return cardPayload;
@@ -387,7 +403,9 @@ export class Kirago implements INodeType {
 				if (footer) payload.Footer = footer;
 				if (id) payload.Id = id;
 				if (quotedText) payload.QuotedText = quotedText;
-				if (cardButtons.length) payload.CardButtons = cardButtons.map(buildNativeFlowButton);
+				if (carouselType === 'global' && cardButtons.length) {
+					payload.CardButtons = cardButtons.map(buildNativeFlowButton);
+				}
 
 				const context = buildContextInfo(extra);
 				if (Object.keys(context).length) payload.ContextInfo = context;

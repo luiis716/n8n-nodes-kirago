@@ -5,6 +5,11 @@ const showOnlyForSendCarousel = {
 	operation: ['sendCarousel'],
 };
 
+const carouselModeOptions = [
+	{ name: 'Global Buttons (CardButtons)', value: 'global' },
+	{ name: 'Per-Card Buttons (Cards[].Buttons)', value: 'per_card' },
+];
+
 const buttonTypeOptions = [
 	{ name: 'CTA URL', value: 'cta_url' },
 	{ name: 'Quick Reply', value: 'quick_reply' },
@@ -18,6 +23,15 @@ export const sendCarouselDescription: INodeProperties[] = [
 		required: true,
 		default: '',
 		description: 'User or group JID. Examples: 5511999999999, 555...@g.us.',
+		displayOptions: { show: showOnlyForSendCarousel },
+	},
+	{
+		displayName: 'Carousel Type',
+		name: 'carouselType',
+		type: 'options',
+		options: carouselModeOptions,
+		default: 'global',
+		description: 'Escolha entre botões globais (CardButtons) ou botões por card (Cards[].Buttons).',
 		displayOptions: { show: showOnlyForSendCarousel },
 	},
 	{
@@ -69,7 +83,12 @@ export const sendCarouselDescription: INodeProperties[] = [
 		typeOptions: { multipleValues: true },
 		default: {},
 		description: 'Botões globais do carrossel',
-		displayOptions: { show: showOnlyForSendCarousel },
+		displayOptions: {
+			show: {
+				...showOnlyForSendCarousel,
+				carouselType: ['global'],
+			},
+		},
 		options: [
 			{
 				displayName: 'Button',
@@ -152,6 +171,11 @@ export const sendCarouselDescription: INodeProperties[] = [
 						typeOptions: { multipleValues: true },
 						default: {},
 						description: 'Botões do card',
+						displayOptions: {
+							show: {
+								carouselType: ['per_card'],
+							},
+						},
 						options: [
 							{
 								displayName: 'Button',

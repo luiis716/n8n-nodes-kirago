@@ -244,15 +244,19 @@ class Kirago {
                 returnData.push({ json: response });
                 continue;
             }
-            if (operation === 'sendCarousel') {
-                const phone = this.getNodeParameter('phone', i);
-                const text = ((_e = this.getNodeParameter('text', i)) !== null && _e !== void 0 ? _e : '').trim();
-                const footer = ((_f = this.getNodeParameter('footer', i)) !== null && _f !== void 0 ? _f : '').trim();
-                const viewOnce = this.getNodeParameter('viewOnce', i);
-                const id = ((_g = this.getNodeParameter('id', i)) !== null && _g !== void 0 ? _g : '').trim();
-                const quotedText = ((_h = this.getNodeParameter('quotedText', i)) !== null && _h !== void 0 ? _h : '').trim();
-                const extra = this.getNodeParameter('additionalFields', i) || {};
-                const buildNativeFlowButton = (b) => {
+	            if (operation === 'sendCarousel') {
+	                const phone = this.getNodeParameter('phone', i);
+	                const carouselType = this.getNodeParameter('carouselType', i) || 'global';
+	                const text = ((_e = this.getNodeParameter('text', i)) !== null && _e !== void 0 ? _e : '').trim();
+	                const footer = ((_f = this.getNodeParameter('footer', i)) !== null && _f !== void 0 ? _f : '').trim();
+	                const viewOnce = this.getNodeParameter('viewOnce', i);
+	                const id = ((_g = this.getNodeParameter('id', i)) !== null && _g !== void 0 ? _g : '').trim();
+	                const quotedText = ((_h = this.getNodeParameter('quotedText', i)) !== null && _h !== void 0 ? _h : '').trim();
+	                const extra = this.getNodeParameter('additionalFields', i) || {};
+	                if (carouselType !== 'global' && carouselType !== 'per_card') {
+	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Unsupported carousel type: ${carouselType}`);
+	                }
+	                const buildNativeFlowButton = (b) => {
                     var _a, _b, _c, _d, _e;
                     const buttonType = ((_a = b.buttonType) !== null && _a !== void 0 ? _a : '').trim();
                     const displayText = ((_b = b.displayText) !== null && _b !== void 0 ? _b : '').trim();
@@ -282,15 +286,18 @@ class Kirago {
                     return {
                         name: buttonType,
                         buttonParams,
-                    };
-                };
-                const cardButtonsRaw = this.getNodeParameter('cardButtons', i) || {};
-                const cardButtons = (_j = cardButtonsRaw.button) !== null && _j !== void 0 ? _j : [];
-                const cardsRaw = this.getNodeParameter('cards', i);
-                const cards = (_k = cardsRaw.card) !== null && _k !== void 0 ? _k : [];
-                if (!cards.length) {
-                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one card is required');
-                }
+	                    };
+	                };
+	                let cardButtons = [];
+	                if (carouselType === 'global') {
+	                    const cardButtonsRaw = this.getNodeParameter('cardButtons', i) || {};
+	                    cardButtons = (_j = cardButtonsRaw.button) !== null && _j !== void 0 ? _j : [];
+	                }
+	                const cardsRaw = this.getNodeParameter('cards', i);
+	                const cards = (_k = cardsRaw.card) !== null && _k !== void 0 ? _k : [];
+	                if (!cards.length) {
+	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one card is required');
+	                }
                 const payload = {
                     Phone: phone,
                     Cards: cards.map((c, cardIndex) => {
@@ -305,32 +312,34 @@ class Kirago {
                         const cardPayload = { Image: image };
                         if (title)
                             cardPayload.Title = title;
-                        if (caption)
-                            cardPayload.Caption = caption;
-                        if (footer)
-                            cardPayload.Footer = footer;
-                        const buttons = (_f = (_e = c.buttons) === null || _e === void 0 ? void 0 : _e.button) !== null && _f !== void 0 ? _f : [];
-                        if (buttons.length) {
-                            cardPayload.Buttons = buttons.map(buildNativeFlowButton);
-                        }
-                        return cardPayload;
-                    }),
-                    ViewOnce: viewOnce,
-                };
+	                        if (caption)
+	                            cardPayload.Caption = caption;
+	                        if (footer)
+	                            cardPayload.Footer = footer;
+	                        if (carouselType === 'per_card') {
+	                            const buttons = (_f = (_e = c.buttons) === null || _e === void 0 ? void 0 : _e.button) !== null && _f !== void 0 ? _f : [];
+	                            if (buttons.length) {
+	                                cardPayload.Buttons = buttons.map(buildNativeFlowButton);
+	                            }
+	                        }
+	                        return cardPayload;
+	                    }),
+	                    ViewOnce: viewOnce,
+	                };
                 if (text)
                     payload.Text = text;
                 if (footer)
                     payload.Footer = footer;
-                if (id)
-                    payload.Id = id;
-                if (quotedText)
-                    payload.QuotedText = quotedText;
-                if (cardButtons.length)
-                    payload.CardButtons = cardButtons.map(buildNativeFlowButton);
-                const context = buildContextInfo(extra);
-                if (Object.keys(context).length)
-                    payload.ContextInfo = context;
-                const response = await post('/chat/send/carousel', payload);
+	                if (id)
+	                    payload.Id = id;
+	                if (quotedText)
+	                    payload.QuotedText = quotedText;
+	                if (carouselType === 'global' && cardButtons.length)
+	                    payload.CardButtons = cardButtons.map(buildNativeFlowButton);
+	                const context = buildContextInfo(extra);
+	                if (Object.keys(context).length)
+	                    payload.ContextInfo = context;
+	                const response = await post('/chat/send/carousel', payload);
                 returnData.push({ json: response });
                 continue;
             }
