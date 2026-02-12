@@ -283,7 +283,6 @@ export class Kirago implements INodeType {
 				const viewOnce = this.getNodeParameter('viewOnce', i) as boolean;
 				const id = ((this.getNodeParameter('id', i) as string) ?? '').trim();
 				const quotedText = ((this.getNodeParameter('quotedText', i) as string) ?? '').trim();
-				const extra = (this.getNodeParameter('additionalFields', i) as Record<string, unknown>) || {};
 
 				if (carouselType !== 'global' && carouselType !== 'per_card') {
 					throw new NodeOperationError(this.getNode(), `Unsupported carousel type: ${carouselType}`);
@@ -456,9 +455,6 @@ export class Kirago implements INodeType {
 				if (carouselType === 'global' && cardButtons.length) {
 					payload.CardButtons = cardButtons.map(buildNativeFlowButton);
 				}
-
-				const context = buildContextInfo(extra);
-				if (Object.keys(context).length) payload.ContextInfo = context;
 
 				const response = await post('/chat/send/carousel', payload);
 

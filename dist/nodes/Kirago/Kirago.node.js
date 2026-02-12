@@ -252,7 +252,6 @@ class Kirago {
                 const viewOnce = this.getNodeParameter('viewOnce', i);
                 const id = ((_g = this.getNodeParameter('id', i)) !== null && _g !== void 0 ? _g : '').trim();
                 const quotedText = ((_h = this.getNodeParameter('quotedText', i)) !== null && _h !== void 0 ? _h : '').trim();
-                const extra = this.getNodeParameter('additionalFields', i) || {};
                 if (carouselType !== 'global' && carouselType !== 'per_card') {
                     throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Unsupported carousel type: ${carouselType}`);
                 }
@@ -389,9 +388,6 @@ class Kirago {
                 if (carouselType === 'global' && cardButtons.length) {
                     payload.CardButtons = cardButtons.map(buildNativeFlowButton);
                 }
-                const context = buildContextInfo(extra);
-                if (Object.keys(context).length)
-                    payload.ContextInfo = context;
                 const response = await post('/chat/send/carousel', payload);
                 returnData.push({ json: response });
                 continue;
