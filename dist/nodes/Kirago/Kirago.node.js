@@ -293,10 +293,25 @@ class Kirago {
                     const cardButtonsRaw = this.getNodeParameter('cardButtons', i) || {};
                     cardButtons = (_j = cardButtonsRaw.button) !== null && _j !== void 0 ? _j : [];
                 }
-                const cardsRaw = this.getNodeParameter('cards', i);
+                const cardsParamName = carouselType === 'global' ? 'cardsGlobal' : 'cardsPerCard';
+                let cardsRaw;
+                try {
+                    cardsRaw = this.getNodeParameter(cardsParamName, i);
+                }
+                catch (error) {
+                    try {
+                        cardsRaw = this.getNodeParameter('cards', i);
+                    }
+                    catch {
+                        throw error;
+                    }
+                }
                 const cards = (_k = cardsRaw.card) !== null && _k !== void 0 ? _k : [];
                 if (!cards.length) {
                     throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one card is required');
+                }
+                if (carouselType === 'global' && cardButtons.length > 1) {
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Global carousel supports at most 1 button');
                 }
                 const payload = {
                     Phone: phone,

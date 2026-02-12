@@ -347,7 +347,8 @@ export class Kirago implements INodeType {
 					cardButtons = cardButtonsRaw.button ?? [];
 				}
 
-				const cardsRaw = this.getNodeParameter('cards', i) as {
+				const cardsParamName = carouselType === 'global' ? 'cardsGlobal' : 'cardsPerCard';
+				let cardsRaw: {
 					card?: Array<{
 						title?: string;
 						caption?: string;
@@ -364,10 +365,24 @@ export class Kirago implements INodeType {
 						};
 					}>;
 				};
+				try {
+					cardsRaw = this.getNodeParameter(cardsParamName, i) as typeof cardsRaw;
+				} catch (error) {
+					try {
+						cardsRaw = this.getNodeParameter('cards', i) as typeof cardsRaw;
+					} catch {
+						throw error;
+					}
+				}
+
 				const cards = cardsRaw.card ?? [];
 
 				if (!cards.length) {
 					throw new NodeOperationError(this.getNode(), 'At least one card is required');
+				}
+
+				if (carouselType === 'global' && cardButtons.length > 1) {
+					throw new NodeOperationError(this.getNode(), 'Global carousel supports at most 1 button');
 				}
 
 				const payload: Record<string, unknown> = {

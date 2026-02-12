@@ -80,9 +80,9 @@ export const sendCarouselDescription: INodeProperties[] = [
 		name: 'cardButtons',
 		type: 'fixedCollection',
 		placeholder: 'Add button',
-		typeOptions: { multipleValues: true },
+		typeOptions: { multipleValues: true, maxValue: 1 },
 		default: {},
-		description: 'Botões globais do carrossel',
+		description: 'Botão global do carrossel (máximo 1)',
 		displayOptions: {
 			show: {
 				...showOnlyForSendCarousel,
@@ -150,14 +150,69 @@ export const sendCarouselDescription: INodeProperties[] = [
 	},
 	{
 		displayName: 'Cards',
-		name: 'cards',
+		name: 'cardsGlobal',
 		type: 'fixedCollection',
 		placeholder: 'Add card',
 		typeOptions: { multipleValues: true },
 		default: {},
 		required: true,
 		description: 'Cartões do carrossel',
-		displayOptions: { show: showOnlyForSendCarousel },
+		displayOptions: {
+			show: {
+				...showOnlyForSendCarousel,
+				carouselType: ['global'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Card',
+				name: 'card',
+				values: [
+					{
+						displayName: 'Caption',
+						name: 'caption',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: 'Footer',
+						name: 'footer',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: 'Image',
+						name: 'image',
+						type: 'string',
+						required: true,
+						default: '',
+						description: 'HTTP(S) URL or data:image/...;base64,&lt;data&gt;',
+					},
+					{
+						displayName: 'Title',
+						name: 'title',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: 'Cards',
+		name: 'cardsPerCard',
+		type: 'fixedCollection',
+		placeholder: 'Add card',
+		typeOptions: { multipleValues: true },
+		default: {},
+		required: true,
+		description: 'Cartões do carrossel',
+		displayOptions: {
+			show: {
+				...showOnlyForSendCarousel,
+				carouselType: ['per_card'],
+			},
+		},
 		options: [
 			{
 				displayName: 'Card',
@@ -171,11 +226,6 @@ export const sendCarouselDescription: INodeProperties[] = [
 						typeOptions: { multipleValues: true },
 						default: {},
 						description: 'Botões do card',
-						displayOptions: {
-							show: {
-								carouselType: ['per_card'],
-							},
-						},
 						options: [
 							{
 								displayName: 'Button',
