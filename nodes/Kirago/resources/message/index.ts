@@ -1,6 +1,7 @@
 import type { INodeProperties } from 'n8n-workflow';
 import { sendAudioDescription } from './sendAudio';
 import { sendButtonsDescription } from './sendButtons';
+import { sendCarouselDescription } from './sendCarousel';
 import { sendDocumentDescription } from './sendDocument';
 import { sendImageDescription } from './sendImage';
 import { sendListDescription } from './sendList';
@@ -29,17 +30,23 @@ export const messageDescription: INodeProperties[] = [
                 action: 'Send audio message',
                 description: 'Enviar mensagem de áudio via Kirago',
             },
-            {
-                name: 'Send Buttons',
-                value: 'sendButtons',
-                action: 'Send buttons message',
-                description: 'Enviar botões via Kirago',
-            },
-            {
-                name: 'Send Document',
-                value: 'sendDocument',
-                action: 'Send document message',
-                description: 'Enviar documento via Kirago',
+			{
+				name: 'Send Buttons',
+				value: 'sendButtons',
+				action: 'Send buttons message',
+				description: 'Enviar botões via Kirago',
+			},
+			{
+				name: 'Send Carousel',
+				value: 'sendCarousel',
+				action: 'Send carousel message',
+				description: 'Enviar carrossel via Kirago',
+			},
+			{
+				name: 'Send Document',
+				value: 'sendDocument',
+				action: 'Send document message',
+				description: 'Enviar documento via Kirago',
             },
 			{
 				name: 'Send Image',
@@ -84,6 +91,7 @@ export const messageDescription: INodeProperties[] = [
 	...sendImageDescription,
 	...sendAudioDescription,
 	...sendButtonsDescription,
+	...sendCarouselDescription,
 	...sendListDescription,
 	...sendOrderDetailsDescription,
 	...sendPixPaymentDescription,

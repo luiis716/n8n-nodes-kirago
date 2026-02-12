@@ -244,6 +244,94 @@ class Kirago {
                 returnData.push({ json: response });
                 continue;
             }
+            if (operation === 'sendCarousel') {
+                const phone = this.getNodeParameter('phone', i);
+                const text = String(this.getNodeParameter('text', i) || '').trim();
+                const footer = String(this.getNodeParameter('footer', i) || '').trim();
+                const viewOnce = this.getNodeParameter('viewOnce', i);
+                const id = String(this.getNodeParameter('id', i) || '').trim();
+                const quotedText = String(this.getNodeParameter('quotedText', i) || '').trim();
+                const extra = this.getNodeParameter('additionalFields', i) || {};
+                const buildNativeFlowButton = (b) => {
+                    const buttonType = String(b.buttonType || '').trim();
+                    const displayText = String(b.displayText || '').trim();
+                    if (!displayText) {
+                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Display Text is required');
+                    }
+                    const buttonParams = {
+                        display_text: displayText,
+                    };
+                    if (buttonType === 'quick_reply') {
+                        const buttonId = String(b.buttonId || '').trim();
+                        if (!buttonId)
+                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Button ID is required for Quick Reply');
+                        buttonParams.id = buttonId;
+                    }
+                    else if (buttonType === 'cta_url') {
+                        const url = String(b.url || '').trim();
+                        const merchantUrl = String(b.merchantUrl || '').trim();
+                        if (!url)
+                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'URL is required for CTA URL');
+                        buttonParams.url = url;
+                        buttonParams.merchant_url = merchantUrl || url;
+                    }
+                    else {
+                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Unsupported button type: ${buttonType}`);
+                    }
+                    return {
+                        name: buttonType,
+                        buttonParams,
+                    };
+                };
+                const cardButtonsRaw = this.getNodeParameter('cardButtons', i) || {};
+                const cardButtons = cardButtonsRaw.button || [];
+                const cardsRaw = this.getNodeParameter('cards', i);
+                const cards = cardsRaw.card || [];
+                if (!cards.length) {
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one card is required');
+                }
+                const payload = {
+                    Phone: phone,
+                    Cards: cards.map((c, cardIndex) => {
+                        const image = String(c.image || '').trim();
+                        if (!image) {
+                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Image is required (card ${cardIndex + 1})`);
+                        }
+                        const title = String(c.title || '').trim();
+                        const caption = String(c.caption || '').trim();
+                        const footer = String(c.footer || '').trim();
+                        const cardPayload = { Image: image };
+                        if (title)
+                            cardPayload.Title = title;
+                        if (caption)
+                            cardPayload.Caption = caption;
+                        if (footer)
+                            cardPayload.Footer = footer;
+                        const buttons = (c.buttons && c.buttons.button) ? c.buttons.button : [];
+                        if (buttons.length) {
+                            cardPayload.Buttons = buttons.map(buildNativeFlowButton);
+                        }
+                        return cardPayload;
+                    }),
+                    ViewOnce: viewOnce,
+                };
+                if (text)
+                    payload.Text = text;
+                if (footer)
+                    payload.Footer = footer;
+                if (id)
+                    payload.Id = id;
+                if (quotedText)
+                    payload.QuotedText = quotedText;
+                if (cardButtons.length)
+                    payload.CardButtons = cardButtons.map(buildNativeFlowButton);
+                const context = buildContextInfo(extra);
+                if (Object.keys(context).length)
+                    payload.ContextInfo = context;
+                const response = await post('/chat/send/carousel', payload);
+                returnData.push({ json: response });
+                continue;
+            }
             if (operation === 'sendList') {
                 const phone = this.getNodeParameter('phone', i);
                 const listMode = this.getNodeParameter('listMode', i) || 'sections';

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageDescription = void 0;
 const sendAudio_1 = require("./sendAudio");
 const sendButtons_1 = require("./sendButtons");
+const sendCarousel_1 = require("./sendCarousel");
 const sendDocument_1 = require("./sendDocument");
 const sendImage_1 = require("./sendImage");
 const sendList_1 = require("./sendList");
@@ -34,6 +35,12 @@ exports.messageDescription = [
                 value: 'sendButtons',
                 action: 'Send buttons message',
                 description: 'Enviar botões via Kirago',
+            },
+            {
+                name: 'Send Carousel',
+                value: 'sendCarousel',
+                action: 'Send carousel message',
+                description: 'Enviar carrossel via Kirago',
             },
             {
                 name: 'Send Document',
@@ -84,6 +91,7 @@ exports.messageDescription = [
     ...sendImage_1.sendImageDescription,
     ...sendAudio_1.sendAudioDescription,
     ...sendButtons_1.sendButtonsDescription,
+    ...sendCarousel_1.sendCarouselDescription,
     ...sendList_1.sendListDescription,
     ...sendOrderDetails_1.sendOrderDetailsDescription,
     ...sendPixPayment_1.sendPixPaymentDescription,

@@ -275,6 +275,129 @@ export class Kirago implements INodeType {
 				continue;
 			}
 
+			if (operation === 'sendCarousel') {
+				const phone = this.getNodeParameter('phone', i) as string;
+				const text = ((this.getNodeParameter('text', i) as string) ?? '').trim();
+				const footer = ((this.getNodeParameter('footer', i) as string) ?? '').trim();
+				const viewOnce = this.getNodeParameter('viewOnce', i) as boolean;
+				const id = ((this.getNodeParameter('id', i) as string) ?? '').trim();
+				const quotedText = ((this.getNodeParameter('quotedText', i) as string) ?? '').trim();
+				const extra = (this.getNodeParameter('additionalFields', i) as Record<string, unknown>) || {};
+
+				const buildNativeFlowButton = (b: {
+					buttonType: string;
+					buttonId?: string;
+					displayText: string;
+					url?: string;
+					merchantUrl?: string;
+				}) => {
+					const buttonType = (b.buttonType ?? '').trim();
+					const displayText = (b.displayText ?? '').trim();
+
+					if (!displayText) {
+						throw new NodeOperationError(this.getNode(), 'Display Text is required');
+					}
+
+					const buttonParams: Record<string, unknown> = {
+						display_text: displayText,
+					};
+
+					if (buttonType === 'quick_reply') {
+						const buttonId = (b.buttonId ?? '').trim();
+						if (!buttonId) throw new NodeOperationError(this.getNode(), 'Button ID is required for Quick Reply');
+						buttonParams.id = buttonId;
+					} else if (buttonType === 'cta_url') {
+						const url = (b.url ?? '').trim();
+						const merchantUrl = (b.merchantUrl ?? '').trim();
+						if (!url) throw new NodeOperationError(this.getNode(), 'URL is required for CTA URL');
+						buttonParams.url = url;
+						buttonParams.merchant_url = merchantUrl || url;
+					} else {
+						throw new NodeOperationError(this.getNode(), `Unsupported button type: ${buttonType}`);
+					}
+
+					return {
+						name: buttonType,
+						buttonParams,
+					};
+				};
+
+				const cardButtonsRaw = (this.getNodeParameter('cardButtons', i) as {
+					button?: Array<{
+						buttonType: string;
+						buttonId?: string;
+						displayText: string;
+						url?: string;
+						merchantUrl?: string;
+					}>;
+				}) || {};
+				const cardButtons = cardButtonsRaw.button ?? [];
+
+				const cardsRaw = this.getNodeParameter('cards', i) as {
+					card?: Array<{
+						title?: string;
+						caption?: string;
+						footer?: string;
+						image: string;
+						buttons?: {
+							button?: Array<{
+								buttonType: string;
+								buttonId?: string;
+								displayText: string;
+								url?: string;
+								merchantUrl?: string;
+							}>;
+						};
+					}>;
+				};
+				const cards = cardsRaw.card ?? [];
+
+				if (!cards.length) {
+					throw new NodeOperationError(this.getNode(), 'At least one card is required');
+				}
+
+				const payload: Record<string, unknown> = {
+					Phone: phone,
+					Cards: cards.map((c, cardIndex) => {
+						const image = (c.image ?? '').trim();
+						if (!image) {
+							throw new NodeOperationError(this.getNode(), `Image is required (card ${cardIndex + 1})`);
+						}
+
+						const title = (c.title ?? '').trim();
+						const caption = (c.caption ?? '').trim();
+						const footer = (c.footer ?? '').trim();
+
+						const cardPayload: Record<string, unknown> = { Image: image };
+						if (title) cardPayload.Title = title;
+						if (caption) cardPayload.Caption = caption;
+						if (footer) cardPayload.Footer = footer;
+
+						const buttons = c.buttons?.button ?? [];
+						if (buttons.length) {
+							cardPayload.Buttons = buttons.map(buildNativeFlowButton);
+						}
+
+						return cardPayload;
+					}),
+					ViewOnce: viewOnce,
+				};
+
+				if (text) payload.Text = text;
+				if (footer) payload.Footer = footer;
+				if (id) payload.Id = id;
+				if (quotedText) payload.QuotedText = quotedText;
+				if (cardButtons.length) payload.CardButtons = cardButtons.map(buildNativeFlowButton);
+
+				const context = buildContextInfo(extra);
+				if (Object.keys(context).length) payload.ContextInfo = context;
+
+				const response = await post('/chat/send/carousel', payload);
+
+				returnData.push({ json: response as INodeExecutionData['json'] });
+				continue;
+			}
+
 			if (operation === 'sendList') {
 				const phone = this.getNodeParameter('phone', i) as string;
 				const listMode = (this.getNodeParameter('listMode', i) as string) || 'sections';
