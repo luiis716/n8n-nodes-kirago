@@ -165,26 +165,27 @@ export class Kirago implements INodeType {
 				continue;
 			}
 
-				if (operation === 'sendButtons') {
-					const phone = this.getNodeParameter('phone', i) as string;
-					const title = ((this.getNodeParameter('title', i) as string) ?? '').trim();
-					const bodyText = this.getNodeParameter('body', i) as string;
-					const footerText = this.getNodeParameter('footer', i) as string;
-					const headerType = (this.getNodeParameter('headerType', i) as string) || 'none';
-					let headerMediaUrl = '';
-					let headerThumbnailUrl = '';
+			if (operation === 'sendButtons') {
+				const phone = this.getNodeParameter('phone', i) as string;
+				const title = ((this.getNodeParameter('title', i) as string) ?? '').trim();
+				const bodyText = this.getNodeParameter('body', i) as string;
+				const footerText = this.getNodeParameter('footer', i) as string;
+				const headerType = (this.getNodeParameter('headerType', i) as string) || 'none';
+				let headerMediaUrl = '';
+				let headerThumbnailUrl = '';
 
-					if (headerType !== 'none') {
-						headerMediaUrl = ((this.getNodeParameter('headerMediaUrl', i) as string) ?? '').trim();
-						if (headerType === 'video') {
-							headerThumbnailUrl = ((this.getNodeParameter('headerThumbnailUrl', i) as string) ?? '').trim();
-						}
+				if (headerType !== 'none') {
+					headerMediaUrl = ((this.getNodeParameter('headerMediaUrl', i) as string) ?? '').trim();
+					if (headerType === 'video') {
+						headerThumbnailUrl = ((this.getNodeParameter('headerThumbnailUrl', i) as string) ?? '').trim();
 					}
-					const buttonsRaw = this.getNodeParameter('buttons', i) as {
-						button?: Array<{
-							buttonType: string;
-							buttonId?: string;
-							displayText: string;
+				}
+
+				const buttonsRaw = this.getNodeParameter('buttons', i) as {
+					button?: Array<{
+						buttonType: string;
+						buttonId?: string;
+						displayText: string;
 						url?: string;
 						merchantUrl?: string;
 						copyCode?: string;
@@ -197,13 +198,17 @@ export class Kirago implements INodeType {
 					throw new NodeOperationError(this.getNode(), 'At least one button is required');
 				}
 
-					if (headerType && headerType !== 'none' && headerType !== 'image' && headerType !== 'video') {
-						throw new NodeOperationError(this.getNode(), `Unsupported header type: ${headerType}`);
-					}
+				if (buttons.length > 3) {
+					throw new NodeOperationError(this.getNode(), 'A maximum of 3 buttons is allowed');
+				}
 
-					if (headerType !== 'none' && !headerMediaUrl) {
-						throw new NodeOperationError(this.getNode(), 'Header Media URL is required when Header Type is Image/Video');
-					}
+				if (headerType && headerType !== 'none' && headerType !== 'image' && headerType !== 'video') {
+					throw new NodeOperationError(this.getNode(), `Unsupported header type: ${headerType}`);
+				}
+
+				if (headerType !== 'none' && !headerMediaUrl) {
+					throw new NodeOperationError(this.getNode(), 'Header Media URL is required when Header Type is Image/Video');
+				}
 
 				const payload: Record<string, unknown> = {
 					phone,
@@ -265,6 +270,167 @@ export class Kirago implements INodeType {
 				}
 
 				const response = await post('/chat/send/buttons', payload);
+
+				returnData.push({ json: response as INodeExecutionData['json'] });
+				continue;
+			}
+
+			if (operation === 'sendList') {
+				const phone = this.getNodeParameter('phone', i) as string;
+				const listMode = (this.getNodeParameter('listMode', i) as string) || 'sections';
+				const topText = ((this.getNodeParameter('topText', i) as string) ?? '').trim();
+				const desc = ((this.getNodeParameter('desc', i) as string) ?? '').trim();
+				const buttonText = ((this.getNodeParameter('buttonText', i) as string) ?? '').trim();
+				const footerText = ((this.getNodeParameter('footerText', i) as string) ?? '').trim();
+
+				if (!topText) throw new NodeOperationError(this.getNode(), 'Top Text is required');
+				if (!desc) throw new NodeOperationError(this.getNode(), 'Description is required');
+				if (!buttonText) throw new NodeOperationError(this.getNode(), 'Button Text is required');
+
+				const payload: Record<string, unknown> = {
+					Phone: phone,
+					TopText: topText,
+					Desc: desc,
+					ButtonText: buttonText,
+				};
+
+				if (footerText) payload.FooterText = footerText;
+
+				if (listMode === 'sections') {
+					const sectionsRaw = this.getNodeParameter('sections', i) as {
+						section?: Array<{
+							title: string;
+							rows?: { row?: Array<{ rowId: string; title: string; desc?: string }> };
+						}>;
+					};
+					const sections = sectionsRaw?.section ?? [];
+
+					if (!sections.length) {
+						throw new NodeOperationError(this.getNode(), 'At least one section is required');
+					}
+
+					payload.Sections = sections.map((s, sectionIndex) => {
+						const sectionTitle = (s.title ?? '').trim();
+						if (!sectionTitle) {
+							throw new NodeOperationError(this.getNode(), `Section title is required (section ${sectionIndex + 1})`);
+						}
+
+						const rows = s.rows?.row ?? [];
+						if (!rows.length) {
+							throw new NodeOperationError(this.getNode(), `At least one row is required (section ${sectionIndex + 1})`);
+						}
+
+						return {
+							title: sectionTitle,
+							rows: rows.map((r, rowIndex) => {
+								const rowId = (r.rowId ?? '').trim();
+								const rowTitle = (r.title ?? '').trim();
+								const rowDesc = (r.desc ?? '').trim();
+
+								if (!rowId) {
+									throw new NodeOperationError(
+										this.getNode(),
+										`Row ID is required (section ${sectionIndex + 1}, row ${rowIndex + 1})`,
+									);
+								}
+								if (!rowTitle) {
+									throw new NodeOperationError(
+										this.getNode(),
+										`Row title is required (section ${sectionIndex + 1}, row ${rowIndex + 1})`,
+									);
+								}
+
+								const rowPayload: Record<string, unknown> = { RowId: rowId, title: rowTitle };
+								if (rowDesc) rowPayload.desc = rowDesc;
+								return rowPayload;
+							}),
+						};
+					});
+				} else if (listMode === 'legacy') {
+					const listRaw = this.getNodeParameter('list', i) as {
+						row?: Array<{ rowId: string; title: string; desc?: string }>;
+					};
+					const list = listRaw?.row ?? [];
+
+					if (!list.length) {
+						throw new NodeOperationError(this.getNode(), 'At least one row is required');
+					}
+
+					payload.List = list.map((r, rowIndex) => {
+						const rowId = (r.rowId ?? '').trim();
+						const rowTitle = (r.title ?? '').trim();
+						const rowDesc = (r.desc ?? '').trim();
+
+						if (!rowId) throw new NodeOperationError(this.getNode(), `Row ID is required (row ${rowIndex + 1})`);
+						if (!rowTitle) throw new NodeOperationError(this.getNode(), `Row title is required (row ${rowIndex + 1})`);
+
+						const rowPayload: Record<string, unknown> = { RowId: rowId, title: rowTitle };
+						if (rowDesc) rowPayload.desc = rowDesc;
+						return rowPayload;
+					});
+				} else {
+					throw new NodeOperationError(this.getNode(), `Unsupported list mode: ${listMode}`);
+				}
+
+				const response = await post('/chat/send/list', payload);
+
+				returnData.push({ json: response as INodeExecutionData['json'] });
+				continue;
+			}
+
+			if (operation === 'sendOrderDetails') {
+				const jid = ((this.getNodeParameter('jid', i) as string) ?? '').trim();
+				const referenceId = ((this.getNodeParameter('referenceId', i) as string) ?? '').trim();
+				const total = this.getNodeParameter('total', i) as number;
+				const itemName = ((this.getNodeParameter('itemName', i) as string) ?? '').trim();
+				const itemQty = this.getNodeParameter('itemQty', i) as number;
+				const merchantName = ((this.getNodeParameter('merchantName', i) as string) ?? '').trim();
+
+				const pixKey = ((this.getNodeParameter('pixKey', i) as string) ?? '').trim();
+				const pixKeyType = (this.getNodeParameter('pixKeyType', i) as string) || 'EVP';
+				const boletoLine = ((this.getNodeParameter('boletoLine', i) as string) ?? '').trim();
+				const pdfHeaderUrl = ((this.getNodeParameter('pdfHeaderUrl', i) as string) ?? '').trim();
+
+				const body = ((this.getNodeParameter('body', i) as string) ?? '').trim();
+				const footer = ((this.getNodeParameter('footer', i) as string) ?? '').trim();
+				const referral = ((this.getNodeParameter('referral', i) as string) ?? '').trim();
+				const sharePaymentStatus = this.getNodeParameter('sharePaymentStatus', i) as boolean;
+
+				if (!jid) throw new NodeOperationError(this.getNode(), 'JID is required');
+				if (!referenceId) throw new NodeOperationError(this.getNode(), 'Reference ID is required');
+				if (!itemName) throw new NodeOperationError(this.getNode(), 'Item Name is required');
+				if (!merchantName) throw new NodeOperationError(this.getNode(), 'Merchant Name is required');
+				if (!itemQty || itemQty <= 0) throw new NodeOperationError(this.getNode(), 'Item Qty must be greater than 0');
+				if (total === undefined || total === null || Number.isNaN(total)) {
+					throw new NodeOperationError(this.getNode(), 'Total is required');
+				}
+				if (total <= 0) throw new NodeOperationError(this.getNode(), 'Total must be greater than 0');
+
+				if (!pixKey && !boletoLine) {
+					throw new NodeOperationError(this.getNode(), 'Provide at least one payment method (PIX Key or Boleto Line)');
+				}
+
+				const payload: Record<string, unknown> = {
+					jid,
+					referenceId,
+					total,
+					itemName,
+					itemQty,
+					merchantName,
+					sharePaymentStatus,
+				};
+
+				if (pixKey) {
+					payload.pixKey = pixKey;
+					payload.pixKeyType = pixKeyType;
+				}
+				if (boletoLine) payload.boletoLine = boletoLine;
+				if (pdfHeaderUrl) payload.pdfHeaderUrl = pdfHeaderUrl;
+				if (body) payload.body = body;
+				if (footer) payload.footer = footer;
+				if (referral) payload.referral = referral;
+
+				const response = await post('/chat/send/order-details', payload);
 
 				returnData.push({ json: response as INodeExecutionData['json'] });
 				continue;

@@ -94,10 +94,10 @@ exports.sendButtonsDescription = [
         name: 'buttons',
         type: 'fixedCollection',
         placeholder: 'Add button',
-        typeOptions: { multipleValues: true },
+        typeOptions: { multipleValues: true, maxValue: 3 },
         default: {},
         required: true,
-        description: 'Lista de botões exibidos abaixo do corpo do texto',
+        description: 'Lista de botões exibidos abaixo do corpo do texto (máximo 3)',
         displayOptions: { show: showOnlyForSendButtons },
         options: [
             {

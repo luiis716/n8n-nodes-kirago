@@ -3,6 +3,8 @@ import { sendAudioDescription } from './sendAudio';
 import { sendButtonsDescription } from './sendButtons';
 import { sendDocumentDescription } from './sendDocument';
 import { sendImageDescription } from './sendImage';
+import { sendListDescription } from './sendList';
+import { sendOrderDetailsDescription } from './sendOrderDetails';
 import { sendTextDescription } from './sendText';
 import { sendVideoDescription } from './sendVideo';
 
@@ -38,18 +40,30 @@ export const messageDescription: INodeProperties[] = [
                 action: 'Send document message',
                 description: 'Enviar documento via Kirago',
             },
-            {
-                name: 'Send Image',
-                value: 'sendImage',
-                action: 'Send image message',
-                description: 'Enviar imagem via Kirago',
-            },
-            {
-                name: 'Send Text',
-                value: 'sendText',
-                action: 'Send text message',
-                description: 'Enviar mensagem de texto via Kirago',
-            },
+			{
+				name: 'Send Image',
+				value: 'sendImage',
+				action: 'Send image message',
+				description: 'Enviar imagem via Kirago',
+			},
+			{
+				name: 'Send List',
+				value: 'sendList',
+				action: 'Send list message',
+				description: 'Enviar lista via Kirago',
+			},
+			{
+				name: 'Send Order Details',
+				value: 'sendOrderDetails',
+				action: 'Send order details message',
+				description: 'Enviar pagamento (order_details) via Kirago',
+			},
+			{
+				name: 'Send Text',
+				value: 'sendText',
+				action: 'Send text message',
+				description: 'Enviar mensagem de texto via Kirago',
+			},
             {
                 name: 'Send Video',
                 value: 'sendVideo',
@@ -63,6 +77,8 @@ export const messageDescription: INodeProperties[] = [
 	...sendImageDescription,
 	...sendAudioDescription,
 	...sendButtonsDescription,
+	...sendListDescription,
+	...sendOrderDetailsDescription,
 	...sendDocumentDescription,
 	...sendVideoDescription,
 ];

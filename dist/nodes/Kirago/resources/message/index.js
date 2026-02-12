@@ -5,6 +5,8 @@ const sendAudio_1 = require("./sendAudio");
 const sendButtons_1 = require("./sendButtons");
 const sendDocument_1 = require("./sendDocument");
 const sendImage_1 = require("./sendImage");
+const sendList_1 = require("./sendList");
+const sendOrderDetails_1 = require("./sendOrderDetails");
 const sendText_1 = require("./sendText");
 const sendVideo_1 = require("./sendVideo");
 const showOnlyForMessages = {
@@ -45,6 +47,18 @@ exports.messageDescription = [
                 description: 'Enviar imagem via Kirago',
             },
             {
+                name: 'Send List',
+                value: 'sendList',
+                action: 'Send list message',
+                description: 'Enviar lista via Kirago',
+            },
+            {
+                name: 'Send Order Details',
+                value: 'sendOrderDetails',
+                action: 'Send order details message',
+                description: 'Enviar pagamento (order_details) via Kirago',
+            },
+            {
                 name: 'Send Text',
                 value: 'sendText',
                 action: 'Send text message',
@@ -63,6 +77,8 @@ exports.messageDescription = [
     ...sendImage_1.sendImageDescription,
     ...sendAudio_1.sendAudioDescription,
     ...sendButtons_1.sendButtonsDescription,
+    ...sendList_1.sendListDescription,
+    ...sendOrderDetails_1.sendOrderDetailsDescription,
     ...sendDocument_1.sendDocumentDescription,
     ...sendVideo_1.sendVideoDescription,
 ];
