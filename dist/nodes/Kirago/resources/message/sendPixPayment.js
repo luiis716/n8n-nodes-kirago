@@ -54,7 +54,6 @@ exports.sendPixPaymentDescription = [
                 displayName: 'Key',
                 name: 'key',
                 type: 'string',
-                required: true,
                 default: '',
                 description: 'Chave PIX',
             },
@@ -62,7 +61,6 @@ exports.sendPixPaymentDescription = [
                 displayName: 'Key Type',
                 name: 'keyType',
                 type: 'options',
-                required: true,
                 default: 'PHONE',
                 options: pixKeyTypeOptions,
                 description: 'Tipo da chave PIX',
@@ -71,7 +69,6 @@ exports.sendPixPaymentDescription = [
                 displayName: 'Merchant Name',
                 name: 'merchantName',
                 type: 'string',
-                required: true,
                 default: '',
                 description: 'Nome do recebedor',
             },
@@ -79,4 +76,3 @@ exports.sendPixPaymentDescription = [
     },
 ];
 //# sourceMappingURL=sendPixPayment.js.map
-

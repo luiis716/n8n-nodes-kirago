@@ -55,7 +55,6 @@ export const sendPixPaymentDescription: INodeProperties[] = [
 				displayName: 'Key',
 				name: 'key',
 				type: 'string',
-				required: true,
 				default: '',
 				description: 'Chave PIX',
 			},
@@ -63,7 +62,6 @@ export const sendPixPaymentDescription: INodeProperties[] = [
 				displayName: 'Key Type',
 				name: 'keyType',
 				type: 'options',
-				required: true,
 				default: 'PHONE',
 				options: pixKeyTypeOptions,
 				description: 'Tipo da chave PIX',
@@ -72,11 +70,9 @@ export const sendPixPaymentDescription: INodeProperties[] = [
 				displayName: 'Merchant Name',
 				name: 'merchantName',
 				type: 'string',
-				required: true,
 				default: '',
 				description: 'Nome do recebedor',
 			},
 		],
 	},
 ];
-
