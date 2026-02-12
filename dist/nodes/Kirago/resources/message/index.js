@@ -7,6 +7,7 @@ const sendDocument_1 = require("./sendDocument");
 const sendImage_1 = require("./sendImage");
 const sendList_1 = require("./sendList");
 const sendOrderDetails_1 = require("./sendOrderDetails");
+const sendPixPayment_1 = require("./sendPixPayment");
 const sendText_1 = require("./sendText");
 const sendVideo_1 = require("./sendVideo");
 const showOnlyForMessages = {
@@ -59,6 +60,12 @@ exports.messageDescription = [
                 description: 'Enviar pagamento (order_details) via Kirago',
             },
             {
+                name: 'Send PIX Payment',
+                value: 'sendPixPayment',
+                action: 'Send pix payment message',
+                description: 'Enviar PIX copia e cola (payment_info) via Kirago',
+            },
+            {
                 name: 'Send Text',
                 value: 'sendText',
                 action: 'Send text message',
@@ -79,6 +86,7 @@ exports.messageDescription = [
     ...sendButtons_1.sendButtonsDescription,
     ...sendList_1.sendListDescription,
     ...sendOrderDetails_1.sendOrderDetailsDescription,
+    ...sendPixPayment_1.sendPixPaymentDescription,
     ...sendDocument_1.sendDocumentDescription,
     ...sendVideo_1.sendVideoDescription,
 ];

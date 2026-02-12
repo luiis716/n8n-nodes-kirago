@@ -5,6 +5,7 @@ import { sendDocumentDescription } from './sendDocument';
 import { sendImageDescription } from './sendImage';
 import { sendListDescription } from './sendList';
 import { sendOrderDetailsDescription } from './sendOrderDetails';
+import { sendPixPaymentDescription } from './sendPixPayment';
 import { sendTextDescription } from './sendText';
 import { sendVideoDescription } from './sendVideo';
 
@@ -59,6 +60,12 @@ export const messageDescription: INodeProperties[] = [
 				description: 'Enviar pagamento (order_details) via Kirago',
 			},
 			{
+				name: 'Send PIX Payment',
+				value: 'sendPixPayment',
+				action: 'Send pix payment message',
+				description: 'Enviar PIX copia e cola (payment_info) via Kirago',
+			},
+			{
 				name: 'Send Text',
 				value: 'sendText',
 				action: 'Send text message',
@@ -79,6 +86,7 @@ export const messageDescription: INodeProperties[] = [
 	...sendButtonsDescription,
 	...sendListDescription,
 	...sendOrderDetailsDescription,
+	...sendPixPaymentDescription,
 	...sendDocumentDescription,
 	...sendVideoDescription,
 ];

@@ -330,10 +330,10 @@ class Kirago {
                 returnData.push({ json: response });
                 continue;
             }
-            if (operation === 'sendOrderDetails') {
-                const jid = ((_l = this.getNodeParameter('jid', i)) !== null && _l !== void 0 ? _l : '').trim();
-                const referenceId = ((_m = this.getNodeParameter('referenceId', i)) !== null && _m !== void 0 ? _m : '').trim();
-                const total = this.getNodeParameter('total', i);
+	            if (operation === 'sendOrderDetails') {
+	                const jid = ((_l = this.getNodeParameter('jid', i)) !== null && _l !== void 0 ? _l : '').trim();
+	                const referenceId = ((_m = this.getNodeParameter('referenceId', i)) !== null && _m !== void 0 ? _m : '').trim();
+	                const total = this.getNodeParameter('total', i);
                 const itemName = ((_o = this.getNodeParameter('itemName', i)) !== null && _o !== void 0 ? _o : '').trim();
                 const itemQty = this.getNodeParameter('itemQty', i);
                 const merchantName = ((_p = this.getNodeParameter('merchantName', i)) !== null && _p !== void 0 ? _p : '').trim();
@@ -386,14 +386,50 @@ class Kirago {
                     payload.footer = footer;
                 if (referral)
                     payload.referral = referral;
-                const response = await post('/chat/send/order-details', payload);
-                returnData.push({ json: response });
-                continue;
-            }
-            if (operation === 'sendDocument') {
-                const phone = this.getNodeParameter('phone', i);
-                const document = this.getNodeParameter('document', i);
-                const fileName = this.getNodeParameter('fileName', i);
+	                const response = await post('/chat/send/order-details', payload);
+	                returnData.push({ json: response });
+	                continue;
+	            }
+	            if (operation === 'sendPixPayment') {
+	                const phone = this.getNodeParameter('phone', i);
+	                const title = String(this.getNodeParameter('title', i) || '').trim();
+	                const body = String(this.getNodeParameter('body', i) || '').trim();
+	                const pixPayment = this.getNodeParameter('pixPayment', i) || {};
+	                const merchantName = String(pixPayment.merchantName || '').trim();
+	                const key = String(pixPayment.key || '').trim();
+	                const keyType = String(pixPayment.keyType || '').trim();
+	                if (!title)
+	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Title is required');
+	                if (!body)
+	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Body is required');
+	                if (!merchantName)
+	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Merchant Name is required');
+	                if (!key)
+	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Key is required');
+	                if (!keyType)
+	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Key Type is required');
+	                const payload = {
+	                    Phone: phone,
+	                    Title: title,
+	                    Body: body,
+	                    Buttons: [
+	                        {
+	                            PixPayment: {
+	                                MerchantName: merchantName,
+	                                Key: key,
+	                                KeyType: keyType,
+	                            },
+	                        },
+	                    ],
+	                };
+	                const response = await post('/chat/send/buttons', payload);
+	                returnData.push({ json: response });
+	                continue;
+	            }
+	            if (operation === 'sendDocument') {
+	                const phone = this.getNodeParameter('phone', i);
+	                const document = this.getNodeParameter('document', i);
+	                const fileName = this.getNodeParameter('fileName', i);
                 const extra = this.getNodeParameter('additionalFields', i) || {};
                 const context = buildContextInfo(extra);
                 const payload = {

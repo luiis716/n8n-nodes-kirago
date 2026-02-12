@@ -436,6 +436,43 @@ export class Kirago implements INodeType {
 				continue;
 			}
 
+			if (operation === 'sendPixPayment') {
+				const phone = this.getNodeParameter('phone', i) as string;
+				const title = ((this.getNodeParameter('title', i) as string) ?? '').trim();
+				const body = ((this.getNodeParameter('body', i) as string) ?? '').trim();
+				const pixPayment = (this.getNodeParameter('pixPayment', i) as Record<string, unknown>) || {};
+
+				const merchantName = ((pixPayment.merchantName as string) ?? '').trim();
+				const key = ((pixPayment.key as string) ?? '').trim();
+				const keyType = ((pixPayment.keyType as string) ?? '').trim();
+
+				if (!title) throw new NodeOperationError(this.getNode(), 'Title is required');
+				if (!body) throw new NodeOperationError(this.getNode(), 'Body is required');
+				if (!merchantName) throw new NodeOperationError(this.getNode(), 'Merchant Name is required');
+				if (!key) throw new NodeOperationError(this.getNode(), 'Key is required');
+				if (!keyType) throw new NodeOperationError(this.getNode(), 'Key Type is required');
+
+				const payload: Record<string, unknown> = {
+					Phone: phone,
+					Title: title,
+					Body: body,
+					Buttons: [
+						{
+							PixPayment: {
+								MerchantName: merchantName,
+								Key: key,
+								KeyType: keyType,
+							},
+						},
+					],
+				};
+
+				const response = await post('/chat/send/buttons', payload);
+
+				returnData.push({ json: response as INodeExecutionData['json'] });
+				continue;
+			}
+
 			if (operation === 'sendDocument') {
 				const phone = this.getNodeParameter('phone', i) as string;
 				const document = this.getNodeParameter('document', i) as string;
