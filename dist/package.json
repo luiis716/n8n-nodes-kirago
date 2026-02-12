@@ -1,6 +1,6 @@
 {
     "name": "n8n-nodes-kirago",
-    "version": "0.1.15",
+    "version": "0.1.16",
     "description": "Community nodes for n8n to integrate with Kirago API.",
     "license": "MIT",
     "homepage": "https://github.com/luiis716/n8n-nodes-kirago#readme",
