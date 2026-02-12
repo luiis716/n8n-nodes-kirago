@@ -46,7 +46,7 @@ class Kirago {
         };
     }
     async execute() {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
         const items = this.getInputData();
         const returnData = [];
         const credentials = (await this.getCredentials('kiragoApi'));
@@ -240,157 +240,160 @@ class Kirago {
                     }
                     payload.header = header;
                 }
-	                const response = await post('/chat/send/buttons', payload);
-	                returnData.push({ json: response });
-	                continue;
-	            }
-	            if (operation === 'sendList') {
-	                const phone = this.getNodeParameter('phone', i);
-	                const listMode = this.getNodeParameter('listMode', i) || 'sections';
-	                const topText = String(this.getNodeParameter('topText', i) || '').trim();
-	                const desc = String(this.getNodeParameter('desc', i) || '').trim();
-	                const buttonText = String(this.getNodeParameter('buttonText', i) || '').trim();
-	                const footerText = String(this.getNodeParameter('footerText', i) || '').trim();
-	                if (!topText)
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Top Text is required');
-	                if (!desc)
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Description is required');
-	                if (!buttonText)
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Button Text is required');
-	                const payload = {
-	                    Phone: phone,
-	                    TopText: topText,
-	                    Desc: desc,
-	                    ButtonText: buttonText,
-	                };
-	                if (footerText)
-	                    payload.FooterText = footerText;
-	                if (listMode === 'sections') {
-	                    const sectionsRaw = this.getNodeParameter('sections', i);
-	                    const sections = (sectionsRaw && sectionsRaw.section) ? sectionsRaw.section : [];
-	                    if (!sections.length) {
-	                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one section is required');
-	                    }
-	                    payload.Sections = sections.map((s, sectionIndex) => {
-	                        const sectionTitle = String((s === null || s === void 0 ? void 0 : s.title) || '').trim();
-	                        if (!sectionTitle) {
-	                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Section title is required (section ${sectionIndex + 1})`);
-	                        }
-	                        const rows = (s && s.rows && s.rows.row) ? s.rows.row : [];
-	                        if (!rows.length) {
-	                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `At least one row is required (section ${sectionIndex + 1})`);
-	                        }
-	                        return {
-	                            title: sectionTitle,
-	                            rows: rows.map((r, rowIndex) => {
-	                                const rowId = String((r === null || r === void 0 ? void 0 : r.rowId) || '').trim();
-	                                const rowTitle = String((r === null || r === void 0 ? void 0 : r.title) || '').trim();
-	                                const rowDesc = String((r === null || r === void 0 ? void 0 : r.desc) || '').trim();
-	                                if (!rowId) {
-	                                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Row ID is required (section ${sectionIndex + 1}, row ${rowIndex + 1})`);
-	                                }
-	                                if (!rowTitle) {
-	                                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Row title is required (section ${sectionIndex + 1}, row ${rowIndex + 1})`);
-	                                }
-	                                const rowPayload = { RowId: rowId, title: rowTitle };
-	                                if (rowDesc)
-	                                    rowPayload.desc = rowDesc;
-	                                return rowPayload;
-	                            }),
-	                        };
-	                    });
-	                }
-	                else if (listMode === 'legacy') {
-	                    const listRaw = this.getNodeParameter('list', i);
-	                    const list = (listRaw && listRaw.row) ? listRaw.row : [];
-	                    if (!list.length) {
-	                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one row is required');
-	                    }
-	                    payload.List = list.map((r, rowIndex) => {
-	                        const rowId = String((r === null || r === void 0 ? void 0 : r.rowId) || '').trim();
-	                        const rowTitle = String((r === null || r === void 0 ? void 0 : r.title) || '').trim();
-	                        const rowDesc = String((r === null || r === void 0 ? void 0 : r.desc) || '').trim();
-	                        if (!rowId)
-	                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Row ID is required (row ${rowIndex + 1})`);
-	                        if (!rowTitle)
-	                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Row title is required (row ${rowIndex + 1})`);
-	                        const rowPayload = { RowId: rowId, title: rowTitle };
-	                        if (rowDesc)
-	                            rowPayload.desc = rowDesc;
-	                        return rowPayload;
-	                    });
-	                }
-	                else {
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Unsupported list mode: ${listMode}`);
-	                }
-	                const response = await post('/chat/send/list', payload);
-	                returnData.push({ json: response });
-	                continue;
-	            }
-	            if (operation === 'sendOrderDetails') {
-	                const jid = String(this.getNodeParameter('jid', i) || '').trim();
-	                const referenceId = String(this.getNodeParameter('referenceId', i) || '').trim();
-	                const total = this.getNodeParameter('total', i);
-	                const itemName = String(this.getNodeParameter('itemName', i) || '').trim();
-	                const itemQty = this.getNodeParameter('itemQty', i);
-	                const merchantName = String(this.getNodeParameter('merchantName', i) || '').trim();
-	                const pixKey = String(this.getNodeParameter('pixKey', i) || '').trim();
-	                const pixKeyType = this.getNodeParameter('pixKeyType', i) || 'EVP';
-	                const boletoLine = String(this.getNodeParameter('boletoLine', i) || '').trim();
-	                const pdfHeaderUrl = String(this.getNodeParameter('pdfHeaderUrl', i) || '').trim();
-	                const body = String(this.getNodeParameter('body', i) || '').trim();
-	                const footer = String(this.getNodeParameter('footer', i) || '').trim();
-	                const referral = String(this.getNodeParameter('referral', i) || '').trim();
-	                const sharePaymentStatus = this.getNodeParameter('sharePaymentStatus', i);
-	                if (!jid)
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'JID is required');
-	                if (!referenceId)
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Reference ID is required');
-	                if (!itemName)
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Item Name is required');
-	                if (!merchantName)
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Merchant Name is required');
-	                if (!itemQty || itemQty <= 0)
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Item Qty must be greater than 0');
-	                if (total === undefined || total === null || Number.isNaN(total)) {
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Total is required');
-	                }
-	                if (total <= 0)
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Total must be greater than 0');
-	                if (!pixKey && !boletoLine) {
-	                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Provide at least one payment method (PIX Key or Boleto Line)');
-	                }
-	                const payload = {
-	                    jid,
-	                    referenceId,
-	                    total,
-	                    itemName,
-	                    itemQty,
-	                    merchantName,
-	                    sharePaymentStatus,
-	                };
-	                if (pixKey) {
-	                    payload.pixKey = pixKey;
-	                    payload.pixKeyType = pixKeyType;
-	                }
-	                if (boletoLine)
-	                    payload.boletoLine = boletoLine;
-	                if (pdfHeaderUrl)
-	                    payload.pdfHeaderUrl = pdfHeaderUrl;
-	                if (body)
-	                    payload.body = body;
-	                if (footer)
-	                    payload.footer = footer;
-	                if (referral)
-	                    payload.referral = referral;
-	                const response = await post('/chat/send/order-details', payload);
-	                returnData.push({ json: response });
-	                continue;
-	            }
-	            if (operation === 'sendDocument') {
-	                const phone = this.getNodeParameter('phone', i);
-	                const document = this.getNodeParameter('document', i);
-	                const fileName = this.getNodeParameter('fileName', i);
+                const response = await post('/chat/send/buttons', payload);
+                returnData.push({ json: response });
+                continue;
+            }
+            if (operation === 'sendList') {
+                const phone = this.getNodeParameter('phone', i);
+                const listMode = this.getNodeParameter('listMode', i) || 'sections';
+                const topText = ((_e = this.getNodeParameter('topText', i)) !== null && _e !== void 0 ? _e : '').trim();
+                const desc = ((_f = this.getNodeParameter('desc', i)) !== null && _f !== void 0 ? _f : '').trim();
+                const buttonText = ((_g = this.getNodeParameter('buttonText', i)) !== null && _g !== void 0 ? _g : '').trim();
+                const footerText = ((_h = this.getNodeParameter('footerText', i)) !== null && _h !== void 0 ? _h : '').trim();
+                if (!topText)
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Top Text is required');
+                if (!desc)
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Description is required');
+                if (!buttonText)
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Button Text is required');
+                const payload = {
+                    Phone: phone,
+                    TopText: topText,
+                    Desc: desc,
+                    ButtonText: buttonText,
+                };
+                if (footerText)
+                    payload.FooterText = footerText;
+                if (listMode === 'sections') {
+                    const sectionsRaw = this.getNodeParameter('sections', i);
+                    const sections = (_j = sectionsRaw === null || sectionsRaw === void 0 ? void 0 : sectionsRaw.section) !== null && _j !== void 0 ? _j : [];
+                    if (!sections.length) {
+                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one section is required');
+                    }
+                    payload.Sections = sections.map((s, sectionIndex) => {
+                        var _a, _b, _c;
+                        const sectionTitle = ((_a = s.title) !== null && _a !== void 0 ? _a : '').trim();
+                        if (!sectionTitle) {
+                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Section title is required (section ${sectionIndex + 1})`);
+                        }
+                        const rows = (_c = (_b = s.rows) === null || _b === void 0 ? void 0 : _b.row) !== null && _c !== void 0 ? _c : [];
+                        if (!rows.length) {
+                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `At least one row is required (section ${sectionIndex + 1})`);
+                        }
+                        return {
+                            title: sectionTitle,
+                            rows: rows.map((r, rowIndex) => {
+                                var _a, _b, _c;
+                                const rowId = ((_a = r.rowId) !== null && _a !== void 0 ? _a : '').trim();
+                                const rowTitle = ((_b = r.title) !== null && _b !== void 0 ? _b : '').trim();
+                                const rowDesc = ((_c = r.desc) !== null && _c !== void 0 ? _c : '').trim();
+                                if (!rowId) {
+                                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Row ID is required (section ${sectionIndex + 1}, row ${rowIndex + 1})`);
+                                }
+                                if (!rowTitle) {
+                                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Row title is required (section ${sectionIndex + 1}, row ${rowIndex + 1})`);
+                                }
+                                const rowPayload = { RowId: rowId, title: rowTitle };
+                                if (rowDesc)
+                                    rowPayload.desc = rowDesc;
+                                return rowPayload;
+                            }),
+                        };
+                    });
+                }
+                else if (listMode === 'legacy') {
+                    const listRaw = this.getNodeParameter('list', i);
+                    const list = (_k = listRaw === null || listRaw === void 0 ? void 0 : listRaw.row) !== null && _k !== void 0 ? _k : [];
+                    if (!list.length) {
+                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'At least one row is required');
+                    }
+                    payload.List = list.map((r, rowIndex) => {
+                        var _a, _b, _c;
+                        const rowId = ((_a = r.rowId) !== null && _a !== void 0 ? _a : '').trim();
+                        const rowTitle = ((_b = r.title) !== null && _b !== void 0 ? _b : '').trim();
+                        const rowDesc = ((_c = r.desc) !== null && _c !== void 0 ? _c : '').trim();
+                        if (!rowId)
+                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Row ID is required (row ${rowIndex + 1})`);
+                        if (!rowTitle)
+                            throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Row title is required (row ${rowIndex + 1})`);
+                        const rowPayload = { RowId: rowId, title: rowTitle };
+                        if (rowDesc)
+                            rowPayload.desc = rowDesc;
+                        return rowPayload;
+                    });
+                }
+                else {
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), `Unsupported list mode: ${listMode}`);
+                }
+                const response = await post('/chat/send/list', payload);
+                returnData.push({ json: response });
+                continue;
+            }
+            if (operation === 'sendOrderDetails') {
+                const jid = ((_l = this.getNodeParameter('jid', i)) !== null && _l !== void 0 ? _l : '').trim();
+                const referenceId = ((_m = this.getNodeParameter('referenceId', i)) !== null && _m !== void 0 ? _m : '').trim();
+                const total = this.getNodeParameter('total', i);
+                const itemName = ((_o = this.getNodeParameter('itemName', i)) !== null && _o !== void 0 ? _o : '').trim();
+                const itemQty = this.getNodeParameter('itemQty', i);
+                const merchantName = ((_p = this.getNodeParameter('merchantName', i)) !== null && _p !== void 0 ? _p : '').trim();
+                const pixKey = ((_q = this.getNodeParameter('pixKey', i)) !== null && _q !== void 0 ? _q : '').trim();
+                const pixKeyType = this.getNodeParameter('pixKeyType', i) || 'EVP';
+                const boletoLine = ((_r = this.getNodeParameter('boletoLine', i)) !== null && _r !== void 0 ? _r : '').trim();
+                const pdfHeaderUrl = ((_s = this.getNodeParameter('pdfHeaderUrl', i)) !== null && _s !== void 0 ? _s : '').trim();
+                const body = ((_t = this.getNodeParameter('body', i)) !== null && _t !== void 0 ? _t : '').trim();
+                const footer = ((_u = this.getNodeParameter('footer', i)) !== null && _u !== void 0 ? _u : '').trim();
+                const referral = ((_v = this.getNodeParameter('referral', i)) !== null && _v !== void 0 ? _v : '').trim();
+                const sharePaymentStatus = this.getNodeParameter('sharePaymentStatus', i);
+                if (!jid)
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'JID is required');
+                if (!referenceId)
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Reference ID is required');
+                if (!itemName)
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Item Name is required');
+                if (!merchantName)
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Merchant Name is required');
+                if (!itemQty || itemQty <= 0)
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Item Qty must be greater than 0');
+                if (total === undefined || total === null || Number.isNaN(total)) {
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Total is required');
+                }
+                if (total <= 0)
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Total must be greater than 0');
+                if (!pixKey && !boletoLine) {
+                    throw new n8n_workflow_1.NodeOperationError(this.getNode(), 'Provide at least one payment method (PIX Key or Boleto Line)');
+                }
+                const payload = {
+                    jid,
+                    referenceId,
+                    total,
+                    itemName,
+                    itemQty,
+                    merchantName,
+                    sharePaymentStatus,
+                };
+                if (pixKey) {
+                    payload.pixKey = pixKey;
+                    payload.pixKeyType = pixKeyType;
+                }
+                if (boletoLine)
+                    payload.boletoLine = boletoLine;
+                if (pdfHeaderUrl)
+                    payload.pdfHeaderUrl = pdfHeaderUrl;
+                if (body)
+                    payload.body = body;
+                if (footer)
+                    payload.footer = footer;
+                if (referral)
+                    payload.referral = referral;
+                const response = await post('/chat/send/order-details', payload);
+                returnData.push({ json: response });
+                continue;
+            }
+            if (operation === 'sendDocument') {
+                const phone = this.getNodeParameter('phone', i);
+                const document = this.getNodeParameter('document', i);
+                const fileName = this.getNodeParameter('fileName', i);
                 const extra = this.getNodeParameter('additionalFields', i) || {};
                 const context = buildContextInfo(extra);
                 const payload = {
