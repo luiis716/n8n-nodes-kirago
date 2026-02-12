@@ -31,7 +31,7 @@ export const sendCarouselDescription: INodeProperties[] = [
 		type: 'options',
 		options: carouselModeOptions,
 		default: 'global',
-		description: 'Escolha entre botões globais (CardButtons) ou botões por card (Cards[].Buttons).',
+		description: 'Escolha entre botões globais (CardButtons) ou botões por card (Cards[].Buttons)',
 		displayOptions: { show: showOnlyForSendCarousel },
 	},
 	{
