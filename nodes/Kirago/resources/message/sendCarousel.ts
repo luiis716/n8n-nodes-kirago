@@ -17,7 +17,7 @@ export const sendCarouselDescription: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
-		description: 'User or group JID. Examples: 5511999999999, 555...@g.us',
+		description: 'User or group JID. Examples: 5511999999999, 555...@g.us.',
 		displayOptions: { show: showOnlyForSendCarousel },
 	},
 	{
@@ -229,7 +229,7 @@ export const sendCarouselDescription: INodeProperties[] = [
 						type: 'string',
 						required: true,
 						default: '',
-						description: 'http(s) URL or data:image/...;base64,...',
+						description: 'HTTP(S) URL or data:image/...;base64,<data>',
 					},
 					{
 						displayName: 'Title',
